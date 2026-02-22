@@ -1,0 +1,752 @@
+[
+  {
+    "title": "Cybersecurity Analyst",
+    "company": "PayWave",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Full-time",
+    "tags": [
+      "Agile",
+      "User Research",
+      "dbt"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Telecom space and are looking for a Cybersecurity Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with User Research and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with User Research\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/paywave-001",
+    "source": "seed",
+    "sourceId": "seed-001"
+  },
+  {
+    "title": "Data Engineer",
+    "company": "OrbitCloud",
+    "location": "Singapore",
+    "jobType": "Internship",
+    "tags": [
+      "Java",
+      "Kubernetes",
+      "Go"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the FinTech space and are looking for a Data Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Go and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Go\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/orbitcloud-002",
+    "source": "seed",
+    "sourceId": "seed-002"
+  },
+  {
+    "title": "UX Designer",
+    "company": "NimbleOps",
+    "location": "Singapore",
+    "jobType": "Contract",
+    "tags": [
+      "SQL",
+      "dbt",
+      "Java"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Consumer App space and are looking for a UX Designer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Java and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with dbt\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/nimbleops-003",
+    "source": "seed",
+    "sourceId": "seed-003"
+  },
+  {
+    "title": "Product Operations",
+    "company": "Productory",
+    "location": "Singapore",
+    "jobType": "Contract",
+    "tags": [
+      "Docker",
+      "Figma",
+      "Go"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the SaaS space and are looking for a Product Operations to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Figma and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Figma\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/productory-004",
+    "source": "seed",
+    "sourceId": "seed-004"
+  },
+  {
+    "title": "IT Project Manager",
+    "company": "SecureMesh",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Internship",
+    "tags": [
+      "AWS",
+      "Figma",
+      "GCP"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Enterprise space and are looking for a IT Project Manager to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Figma and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with AWS\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/securemesh-005",
+    "source": "seed",
+    "sourceId": "seed-005"
+  },
+  {
+    "title": "Machine Learning Engineer",
+    "company": "VantageWorks",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Contract",
+    "tags": [
+      "Cybersecurity",
+      "Risk",
+      "GCP"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the AI space and are looking for a Machine Learning Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Risk and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Cybersecurity\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/vantageworks-006",
+    "source": "seed",
+    "sourceId": "seed-006"
+  },
+  {
+    "title": "Backend Engineer",
+    "company": "BrightLabs",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Contract",
+    "tags": [
+      "Kubernetes",
+      "Compliance",
+      "APIs"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Tech space and are looking for a Backend Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with APIs and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with APIs\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/brightlabs-007",
+    "source": "seed",
+    "sourceId": "seed-007"
+  },
+  {
+    "title": "Frontend Engineer",
+    "company": "PayWave",
+    "location": "Singapore (One-North)",
+    "jobType": "Contract",
+    "tags": [
+      "Statistics",
+      "dbt",
+      "Agile"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Tech space and are looking for a Frontend Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Agile and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Agile\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/paywave-008",
+    "source": "seed",
+    "sourceId": "seed-008"
+  },
+  {
+    "title": "Quant Research Intern",
+    "company": "CloudNova",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Internship",
+    "tags": [
+      "Go",
+      "APIs",
+      "GCP"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Hedge Fund space and are looking for a Quant Research Intern to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with GCP and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Go\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/cloudnova-009",
+    "source": "seed",
+    "sourceId": "seed-009"
+  },
+  {
+    "title": "Data Analyst",
+    "company": "BankSphere",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Contract",
+    "tags": [
+      "Tableau",
+      "Figma",
+      "ETL"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the E-commerce space and are looking for a Data Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Figma and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Tableau\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/banksphere-010",
+    "source": "seed",
+    "sourceId": "seed-010"
+  },
+  {
+    "title": "Growth Marketing",
+    "company": "MarketMint",
+    "location": "Singapore (One-North)",
+    "jobType": "Internship",
+    "tags": [
+      "Risk",
+      "Data Visualization",
+      "AWS"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Consumer space and are looking for a Growth Marketing to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Risk and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Risk\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/marketmint-011",
+    "source": "seed",
+    "sourceId": "seed-011"
+  },
+  {
+    "title": "Data Scientist",
+    "company": "SaaSWorks",
+    "location": "Singapore (One-North)",
+    "jobType": "Full-time",
+    "tags": [
+      "Airflow",
+      "GCP",
+      "SQL"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the HealthTech space and are looking for a Data Scientist to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Airflow and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with SQL\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/saasworks-012",
+    "source": "seed",
+    "sourceId": "seed-012"
+  },
+  {
+    "title": "Business Analyst",
+    "company": "VantageWorks",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Full-time",
+    "tags": [
+      "Statistics",
+      "Python",
+      "A/B Testing"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Consulting space and are looking for a Business Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Python and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Python\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/vantageworks-013",
+    "source": "seed",
+    "sourceId": "seed-013"
+  },
+  {
+    "title": "FP&A Analyst",
+    "company": "DataHarbor",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Internship",
+    "tags": [
+      "A/B Testing",
+      "Statistics",
+      "SQL"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the FinTech space and are looking for a FP&A Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Statistics and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Statistics\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/dataharbor-014",
+    "source": "seed",
+    "sourceId": "seed-014"
+  },
+  {
+    "title": "Product Manager",
+    "company": "AICrafters",
+    "location": "Singapore",
+    "jobType": "Contract",
+    "tags": [
+      "Stakeholder Management",
+      "Excel",
+      "APIs"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the FinTech space and are looking for a Product Manager to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Excel and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with APIs\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/aicrafters-015",
+    "source": "seed",
+    "sourceId": "seed-015"
+  },
+  {
+    "title": "Growth Marketing",
+    "company": "RetailTech",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Internship",
+    "tags": [
+      "Node.js",
+      "Data Visualization",
+      "Agile"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Consumer space and are looking for a Growth Marketing to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Node.js and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Data Visualization\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/retailtech-016",
+    "source": "seed",
+    "sourceId": "seed-016"
+  },
+  {
+    "title": "IT Project Manager",
+    "company": "QuantumEdge",
+    "location": "Singapore (One-North)",
+    "jobType": "Contract",
+    "tags": [
+      "GCP",
+      "Risk",
+      "Kubernetes"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Enterprise space and are looking for a IT Project Manager to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with GCP and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with GCP\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/quantumedge-017",
+    "source": "seed",
+    "sourceId": "seed-017"
+  },
+  {
+    "title": "Machine Learning Engineer",
+    "company": "PayWave",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Contract",
+    "tags": [
+      "GCP",
+      "dbt",
+      "Node.js"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the AI space and are looking for a Machine Learning Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with GCP and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with dbt\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/paywave-018",
+    "source": "seed",
+    "sourceId": "seed-018"
+  },
+  {
+    "title": "Frontend Engineer",
+    "company": "CityMobility",
+    "location": "Singapore",
+    "jobType": "Internship",
+    "tags": [
+      "NLP",
+      "Python",
+      "Communication"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Tech space and are looking for a Frontend Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with NLP and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with NLP\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/citymobility-019",
+    "source": "seed",
+    "sourceId": "seed-019"
+  },
+  {
+    "title": "Cybersecurity Analyst",
+    "company": "BridgePoint",
+    "location": "Singapore (CBD)",
+    "jobType": "Full-time",
+    "tags": [
+      "Tableau",
+      "Java",
+      "Scrum"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Telecom space and are looking for a Cybersecurity Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Java and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Java\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/bridgepoint-020",
+    "source": "seed",
+    "sourceId": "seed-020"
+  },
+  {
+    "title": "Product Operations",
+    "company": "DevForge",
+    "location": "Singapore (One-North)",
+    "jobType": "Internship",
+    "tags": [
+      "PowerBI",
+      "Compliance",
+      "AWS"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the SaaS space and are looking for a Product Operations to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with AWS and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with AWS\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/devforge-021",
+    "source": "seed",
+    "sourceId": "seed-021"
+  },
+  {
+    "title": "Product Designer",
+    "company": "AICrafters",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Contract",
+    "tags": [
+      "Tableau",
+      "Python",
+      "Node.js"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the B2B space and are looking for a Product Designer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Node.js and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Tableau\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/aicrafters-022",
+    "source": "seed",
+    "sourceId": "seed-022"
+  },
+  {
+    "title": "Business Analyst",
+    "company": "SaaSWorks",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Full-time",
+    "tags": [
+      "Kubernetes",
+      "A/B Testing",
+      "Data Visualization"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Consulting space and are looking for a Business Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with A/B Testing and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Kubernetes\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/saasworks-023",
+    "source": "seed",
+    "sourceId": "seed-023"
+  },
+  {
+    "title": "Growth Marketing",
+    "company": "Zenlytics",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Internship",
+    "tags": [
+      "React",
+      "TypeScript",
+      "Excel"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Consumer space and are looking for a Growth Marketing to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with TypeScript and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with TypeScript\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/zenlytics-024",
+    "source": "seed",
+    "sourceId": "seed-024"
+  },
+  {
+    "title": "DevOps Engineer",
+    "company": "ConsultX",
+    "location": "Singapore (CBD)",
+    "jobType": "Contract",
+    "tags": [
+      "Python",
+      "Cybersecurity",
+      "Docker"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Cloud space and are looking for a DevOps Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Docker and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Cybersecurity\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/consultx-025",
+    "source": "seed",
+    "sourceId": "seed-025"
+  },
+  {
+    "title": "Associate Product Manager",
+    "company": "QuantumEdge",
+    "location": "Singapore (CBD)",
+    "jobType": "Full-time",
+    "tags": [
+      "React",
+      "SQL",
+      "Stakeholder Management"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the SaaS space and are looking for a Associate Product Manager to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Stakeholder Management and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with React\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/quantumedge-026",
+    "source": "seed",
+    "sourceId": "seed-026"
+  },
+  {
+    "title": "Data Analyst",
+    "company": "SaaSWorks",
+    "location": "Singapore (One-North)",
+    "jobType": "Contract",
+    "tags": [
+      "TypeScript",
+      "Agile",
+      "ETL"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the E-commerce space and are looking for a Data Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Agile and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Agile\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/saasworks-027",
+    "source": "seed",
+    "sourceId": "seed-027"
+  },
+  {
+    "title": "Solutions Engineer",
+    "company": "SaaSWorks",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Internship",
+    "tags": [
+      "GCP",
+      "Go",
+      "Excel"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Cloud space and are looking for a Solutions Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with GCP and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Go\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/saasworks-028",
+    "source": "seed",
+    "sourceId": "seed-028"
+  },
+  {
+    "title": "Quant Research Intern",
+    "company": "BridgePoint",
+    "location": "Singapore (One-North)",
+    "jobType": "Internship",
+    "tags": [
+      "Data Visualization",
+      "Docker",
+      "Communication"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Hedge Fund space and are looking for a Quant Research Intern to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Data Visualization and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Data Visualization\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/bridgepoint-029",
+    "source": "seed",
+    "sourceId": "seed-029"
+  },
+  {
+    "title": "Risk Analyst",
+    "company": "QuantumEdge",
+    "location": "Singapore (One-North)",
+    "jobType": "Full-time",
+    "tags": [
+      "Data Visualization",
+      "Docker",
+      "Tableau"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Banking space and are looking for a Risk Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Docker and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Tableau\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/quantumedge-030",
+    "source": "seed",
+    "sourceId": "seed-030"
+  },
+  {
+    "title": "QA Engineer",
+    "company": "DataHarbor",
+    "location": "Singapore (CBD)",
+    "jobType": "Contract",
+    "tags": [
+      "Compliance",
+      "Data Visualization",
+      "Figma"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the SaaS space and are looking for a QA Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Data Visualization and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Figma\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/dataharbor-031",
+    "source": "seed",
+    "sourceId": "seed-031"
+  },
+  {
+    "title": "Product Manager",
+    "company": "PlanIQ",
+    "location": "Singapore (One-North)",
+    "jobType": "Full-time",
+    "tags": [
+      "NLP",
+      "dbt",
+      "Stakeholder Management"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the FinTech space and are looking for a Product Manager to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Stakeholder Management and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with dbt\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/planiq-032",
+    "source": "seed",
+    "sourceId": "seed-032"
+  },
+  {
+    "title": "DevOps Engineer",
+    "company": "CityMobility",
+    "location": "Singapore",
+    "jobType": "Full-time",
+    "tags": [
+      "Communication",
+      "Machine Learning",
+      "React"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Cloud space and are looking for a DevOps Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with React and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Machine Learning\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/citymobility-033",
+    "source": "seed",
+    "sourceId": "seed-033"
+  },
+  {
+    "title": "Sales Operations Analyst",
+    "company": "OrbitCloud",
+    "location": "Singapore",
+    "jobType": "Full-time",
+    "tags": [
+      "GCP",
+      "Docker",
+      "Machine Learning"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the B2B space and are looking for a Sales Operations Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with GCP and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Machine Learning\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/orbitcloud-034",
+    "source": "seed",
+    "sourceId": "seed-034"
+  },
+  {
+    "title": "Product Operations",
+    "company": "CityMobility",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Internship",
+    "tags": [
+      "SQL",
+      "Machine Learning",
+      "Scrum"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the SaaS space and are looking for a Product Operations to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with SQL and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Machine Learning\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/citymobility-035",
+    "source": "seed",
+    "sourceId": "seed-035"
+  },
+  {
+    "title": "Product Manager",
+    "company": "OrbitCloud",
+    "location": "Singapore (One-North)",
+    "jobType": "Full-time",
+    "tags": [
+      "Cybersecurity",
+      "ETL",
+      "Go"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the FinTech space and are looking for a Product Manager to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Go and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Go\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/orbitcloud-036",
+    "source": "seed",
+    "sourceId": "seed-036"
+  },
+  {
+    "title": "Growth Marketing",
+    "company": "BridgePoint",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Contract",
+    "tags": [
+      "Docker",
+      "Communication",
+      "User Research"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Consumer space and are looking for a Growth Marketing to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with User Research and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Communication\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/bridgepoint-037",
+    "source": "seed",
+    "sourceId": "seed-037"
+  },
+  {
+    "title": "Product Operations",
+    "company": "PlanIQ",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Internship",
+    "tags": [
+      "Machine Learning",
+      "TypeScript",
+      "SQL"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the SaaS space and are looking for a Product Operations to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with TypeScript and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with SQL\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/planiq-038",
+    "source": "seed",
+    "sourceId": "seed-038"
+  },
+  {
+    "title": "Business Analyst",
+    "company": "AICrafters",
+    "location": "Singapore",
+    "jobType": "Internship",
+    "tags": [
+      "Java",
+      "AWS",
+      "TypeScript"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Consulting space and are looking for a Business Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with TypeScript and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with TypeScript\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/aicrafters-039",
+    "source": "seed",
+    "sourceId": "seed-039"
+  },
+  {
+    "title": "Data Analyst",
+    "company": "MedNova",
+    "location": "Singapore (CBD)",
+    "jobType": "Internship",
+    "tags": [
+      "Node.js",
+      "Machine Learning",
+      "AWS"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the E-commerce space and are looking for a Data Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Machine Learning and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Node.js\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/mednova-040",
+    "source": "seed",
+    "sourceId": "seed-040"
+  },
+  {
+    "title": "Cybersecurity Analyst",
+    "company": "ConsultX",
+    "location": "Singapore",
+    "jobType": "Internship",
+    "tags": [
+      "SQL",
+      "React",
+      "Tableau"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Telecom space and are looking for a Cybersecurity Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with React and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Tableau\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/consultx-041",
+    "source": "seed",
+    "sourceId": "seed-041"
+  },
+  {
+    "title": "Machine Learning Engineer",
+    "company": "AICrafters",
+    "location": "Singapore",
+    "jobType": "Full-time",
+    "tags": [
+      "NLP",
+      "Statistics",
+      "Kubernetes"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the AI space and are looking for a Machine Learning Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Kubernetes and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Kubernetes\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/aicrafters-042",
+    "source": "seed",
+    "sourceId": "seed-042"
+  },
+  {
+    "title": "Machine Learning Engineer",
+    "company": "Zenlytics",
+    "location": "Singapore",
+    "jobType": "Internship",
+    "tags": [
+      "NLP",
+      "Airflow",
+      "Kubernetes"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the AI space and are looking for a Machine Learning Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with NLP and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Airflow\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/zenlytics-043",
+    "source": "seed",
+    "sourceId": "seed-043"
+  },
+  {
+    "title": "Associate Product Manager",
+    "company": "DevForge",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Full-time",
+    "tags": [
+      "dbt",
+      "Airflow",
+      "User Research"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the SaaS space and are looking for a Associate Product Manager to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Airflow and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with User Research\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/devforge-044",
+    "source": "seed",
+    "sourceId": "seed-044"
+  },
+  {
+    "title": "Backend Engineer",
+    "company": "BrightLabs",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Full-time",
+    "tags": [
+      "Docker",
+      "User Research",
+      "Python"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Tech space and are looking for a Backend Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Docker and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with User Research\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/brightlabs-045",
+    "source": "seed",
+    "sourceId": "seed-045"
+  },
+  {
+    "title": "Risk Analyst",
+    "company": "ConsultX",
+    "location": "Singapore (Hybrid)",
+    "jobType": "Full-time",
+    "tags": [
+      "Go",
+      "Compliance",
+      "Communication"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the Banking space and are looking for a Risk Analyst to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Communication and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Compliance\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/consultx-046",
+    "source": "seed",
+    "sourceId": "seed-046"
+  },
+  {
+    "title": "Product Operations",
+    "company": "PlanIQ",
+    "location": "Singapore",
+    "jobType": "Full-time",
+    "tags": [
+      "React",
+      "Figma",
+      "GCP"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the SaaS space and are looking for a Product Operations to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with React and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with GCP\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/planiq-047",
+    "source": "seed",
+    "sourceId": "seed-047"
+  },
+  {
+    "title": "Data Engineer",
+    "company": "PlanIQ",
+    "location": "Singapore",
+    "jobType": "Internship",
+    "tags": [
+      "Agile",
+      "Java",
+      "Docker"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the FinTech space and are looking for a Data Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with Agile and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Agile\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/planiq-048",
+    "source": "seed",
+    "sourceId": "seed-048"
+  },
+  {
+    "title": "Full Stack Engineer",
+    "company": "StreamStack",
+    "location": "Singapore (Remote-friendly)",
+    "jobType": "Full-time",
+    "tags": [
+      "Docker",
+      "AWS",
+      "APIs"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the SaaS space and are looking for a Full Stack Engineer to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with APIs and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with APIs\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/streamstack-049",
+    "source": "seed",
+    "sourceId": "seed-049"
+  },
+  {
+    "title": "Data Scientist",
+    "company": "Zenlytics",
+    "location": "Singapore (CBD)",
+    "jobType": "Internship",
+    "tags": [
+      "Data Visualization",
+      "Airflow",
+      "TypeScript"
+    ],
+    "descriptionText": "**About the role**\nWe are building products in the HealthTech space and are looking for a Data Scientist to help ship impactful features.\n\n**Responsibilities**\n- Own end-to-end delivery from problem discovery to launch and iteration.\n- Partner with cross-functional teams (engineering, design, data, GTM) to execute roadmap.\n- Define success metrics and run experiments to improve key funnels.\n- Translate user needs into clear requirements, user stories, and acceptance criteria.\n\n**Requirements**\n- Experience with TypeScript and strong analytical thinking.\n- Able to structure ambiguous problems and make data-informed trade-offs.\n- Excellent written and verbal communication.\n- Familiar with agile ways of working; can manage scope and timelines.\n\n**Nice to have**\n- Hands-on with Data Visualization\n- Experience working in Singapore/APAC markets\n- Comfortable working with data and dashboards",
+    "externalUrl": "https://example.com/jobs/zenlytics-050",
+    "source": "seed",
+    "sourceId": "seed-050"
+  }
+]

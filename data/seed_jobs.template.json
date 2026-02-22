@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Product Manager",
+    "company": "FinTechCo",
+    "location": "Singapore",
+    "jobType": "Full-time",
+    "tags": [
+      "SQL",
+      "Analytics",
+      "Experimentation"
+    ],
+    "descriptionText": "Write a realistic full JD here. Include responsibilities and requirements.",
+    "externalUrl": "https://example.com/job/123",
+    "source": "seed",
+    "sourceId": "seed-001"
+  },
+  {
+    "title": "Data Analyst",
+    "company": "RetailTech",
+    "location": "Singapore",
+    "jobType": "Internship",
+    "tags": [
+      "Python",
+      "SQL",
+      "Dashboard"
+    ],
+    "descriptionText": "Write a realistic full JD here.",
+    "externalUrl": "https://example.com/job/456",
+    "source": "seed",
+    "sourceId": "seed-002"
+  }
+]

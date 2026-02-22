@@ -1,0 +1,39 @@
+[
+  {
+    "name": "Stripe (Greenhouse)",
+    "type": "greenhouse",
+    "companyName": "Stripe",
+    "baseKey": "stripe",
+    "isEnabled": true,
+    "fetchIntervalMinutes": 360,
+    "maxItems": 300
+  },
+  {
+    "name": "SHEIN (Greenhouse)",
+    "type": "greenhouse",
+    "companyName": "SHEIN",
+    "baseKey": "shein",
+    "isEnabled": true,
+    "fetchIntervalMinutes": 360,
+    "maxItems": 300
+  },
+  {
+    "name": "DiDi (Greenhouse)",
+    "type": "greenhouse",
+    "companyName": "DiDi",
+    "baseKey": "didi",
+    "isEnabled": true,
+    "fetchIntervalMinutes": 360,
+    "maxItems": 300
+  },
+  {
+    "name": "Ninja Van (Lever)",
+    "type": "lever",
+    "companyName": "Ninja Van",
+    "baseKey": "ninjavan",
+    "isEnabled": true,
+    "fetchIntervalMinutes": 360,
+    "maxItems": 300
+  }
+]
+
