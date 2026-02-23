@@ -28,7 +28,11 @@ Ensure it contains:
 ```bash
 DATABASE_URL=sqlite:///./looogo_dev.db
 JWT_SECRET=change_me_to_a_long_random_string
+OPENAI_API_KEY=your-openai-api-key-here
+OPENAI_MODEL=gpt-4o-mini
 ```
+
+**Note**: For AI assistant features, you need a valid OpenAI API key. Get one from https://platform.openai.com/api-keys
 
 2) Run migrations (SQLite):
 

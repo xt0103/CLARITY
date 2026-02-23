@@ -12,6 +12,7 @@ from app.api.routes.match import router as match_router
 from app.api.routes.jobs import router as jobs_router
 from app.api.routes.applications import router as applications_router
 from app.api.routes.metrics import router as metrics_router
+from app.api.routes.assistant import router as assistant_router
 
 
 def _http_code_to_error_code(status_code: int) -> str:
@@ -73,6 +74,7 @@ def create_app() -> FastAPI:
     app.include_router(jobs_router)
     app.include_router(applications_router)
     app.include_router(metrics_router)
+    app.include_router(assistant_router)
 
     return app
 

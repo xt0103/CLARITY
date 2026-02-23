@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { api } from "@/lib/api";
 import { ApiError } from "@/lib/apiClient";
+import { assistantClient, type ChatResponse, type UIAction } from "@/lib/assistantClient";
 import type { JobListResponse } from "@/lib/types";
 
 type SearchSession = {
@@ -15,6 +16,13 @@ type SearchSession = {
   title: string;
   createdAt: number;
   resultsCount: number | null;
+};
+
+type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: number;
 };
 
 export default function JobMatchPage() {
@@ -26,6 +34,8 @@ export default function JobMatchPage() {
   const [chatInput, setChatInput] = useState("");
   const pendingSessionIdRef = useRef<string | null>(null);
   const [stopped, setStopped] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   function uniq(xs: string[]) {
     const seen = new Set<string>();
@@ -47,6 +57,86 @@ export default function JobMatchPage() {
       if (sid) {
         setSessions((prev) => prev.map((s) => (s.id === sid ? { ...s, resultsCount: data.jobs.length } : s)));
       }
+    }
+  });
+
+  const assistantMut = useMutation({
+    mutationFn: async (message: string) => {
+      return assistantClient.chat({
+        message,
+        conversationId: conversationId || undefined,
+        context: {
+          searchState: {
+            queryText: queryText,
+            filters: {}
+          }
+        }
+      });
+    },
+    onSuccess: (response: ChatResponse) => {
+      setConversationId(response.conversationId);
+      
+      // Add messages to chat
+      const userMsg: ChatMessage = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: chatInput.trim(),
+        timestamp: Date.now()
+      };
+      const assistantMsg: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: "assistant",
+        content: response.assistantText,
+        timestamp: Date.now()
+      };
+      setChatMessages((prev) => [...prev, userMsg, assistantMsg]);
+      
+      // Process UI actions
+      for (const action of response.uiActions) {
+        if (action.type === "SET_SEARCH_RESULTS") {
+          setResult({
+            jobs: action.payload.jobs,
+            total: action.payload.total,
+            limit: 50,
+            offset: 0
+          });
+          setViewMode("search");
+        } else if (action.type === "SET_SEARCH_QUERY") {
+          setQueryText(action.payload.queryText || "");
+        } else if (action.type === "HIGHLIGHT_JOB") {
+          // Could scroll to job or open detail
+          // For now, just log
+          console.log("Highlight job:", action.payload.jobId);
+        } else if (action.type === "SHOW_TOAST") {
+          // Show toast notification
+          window.alert(action.payload.message);
+        }
+      }
+      
+      // Update session
+      const sid = pendingSessionIdRef.current || String(Date.now());
+      const jobsCount = response.uiActions.find(a => a.type === "SET_SEARCH_RESULTS")?.payload?.jobs?.length || result?.jobs.length || 0;
+      setSessions((prev) => {
+        const existing = prev.find((s) => s.id === sid);
+        if (existing) {
+          return prev.map((s) => 
+            s.id === sid 
+              ? { ...s, resultsCount: jobsCount }
+              : s
+          );
+        } else {
+          return [
+            {
+              id: sid,
+              query: chatInput.trim(),
+              title: chatInput.trim().slice(0, 50),
+              createdAt: Date.now(),
+              resultsCount: jobsCount
+            },
+            ...prev
+          ];
+        }
+      });
     }
   });
 
@@ -131,7 +221,8 @@ export default function JobMatchPage() {
     setViewMode("search");
     const sid = startSession(qq);
     pendingSessionIdRef.current = sid;
-    searchMut.mutate(qq);
+    // Use assistant API instead of direct search
+    assistantMut.mutate(qq);
   }
 
   function pickTags(j: NonNullable<JobListResponse["jobs"]>[number]) {
@@ -566,7 +657,8 @@ export default function JobMatchPage() {
                         setStopped(false);
                         setQueryText(s.query);
                         setChatInput(s.query);
-                        searchMut.mutate(s.query);
+                        setViewMode("search");
+                        assistantMut.mutate(s.query);
                       }}
                       style={{
                         textAlign: "left",
@@ -659,14 +751,20 @@ export default function JobMatchPage() {
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && chatInput.trim() && !searchMut.isPending) doSearch(chatInput);
+                      if (e.key === "Enter" && chatInput.trim() && !assistantMut.isPending) {
+                        doSearch(chatInput);
+                        setChatInput("");
+                      }
                     }}
                     placeholder="Please describe your job search objectives..."
                     style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #e2e8f0" }}
                   />
                   <button
-                    onClick={() => doSearch(chatInput)}
-                    disabled={!chatInput.trim() || searchMut.isPending}
+                    onClick={() => {
+                      doSearch(chatInput);
+                      setChatInput("");
+                    }}
+                    disabled={!chatInput.trim() || assistantMut.isPending}
                     style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: "#2563eb", color: "#fff", fontWeight: 900 }}
                     aria-label="send"
                   >
