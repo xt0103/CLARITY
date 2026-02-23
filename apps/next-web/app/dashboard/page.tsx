@@ -3,6 +3,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { api } from "@/lib/api";
@@ -65,10 +66,12 @@ function StatusLegend({
 
 function StatusPie({
   breakdown,
-  showLegend = true
+  showLegend = true,
+  onClick
 }: {
   breakdown: Partial<Record<ApplicationStatus, number>>;
   showLegend?: boolean;
+  onClick?: () => void;
 }) {
   const order: ApplicationStatus[] = ["APPLIED", "UNDER_REVIEW", "INTERVIEW", "OFFER", "REJECTED"];
   const total = order.reduce((s, k) => s + (breakdown[k] ?? 0), 0);
@@ -104,7 +107,14 @@ function StatusPie({
 
   return (
     <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "nowrap" }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-label="application-status-pie" style={{ position: "relative", flexShrink: 0 }}>
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        aria-label="application-status-pie"
+        style={{ position: "relative", flexShrink: 0, cursor: onClick ? "pointer" : "default" }}
+        onClick={onClick}
+      >
         <g transform={`rotate(-90 ${center} ${center})`}>
           {/* background ring */}
           <circle cx={center} cy={center} r={r} fill="transparent" stroke="#e2e8f0" strokeWidth={strokeW} />
@@ -162,6 +172,7 @@ function StatusPie({
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const qc = useQueryClient();
   const meQ = useQuery({
     queryKey: ["me"],
@@ -634,7 +645,28 @@ export default function DashboardPage() {
                 }}
               >
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
+                  <button
+                    onClick={() => router.push("/tracker")}
+                    style={{
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 12,
+                      padding: 20,
+                      minHeight: 95,
+                      background: "#fff",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.2s",
+                      width: "100%"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#2563eb";
+                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(37, 99, 235, 0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "#e2e8f0";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#dbeafe", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/applications.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -644,8 +676,29 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Total Applications</div>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
+                  </button>
+                  <button
+                    onClick={() => router.push("/tracker?status=INTERVIEW")}
+                    style={{
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 12,
+                      padding: 20,
+                      minHeight: 95,
+                      background: "#fff",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.2s",
+                      width: "100%"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#7c3aed";
+                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "#e2e8f0";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#ede9fe", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/interviews.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -655,8 +708,29 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Interviews</div>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
+                  </button>
+                  <button
+                    onClick={() => router.push("/tracker?status=OFFER")}
+                    style={{
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 12,
+                      padding: 20,
+                      minHeight: 95,
+                      background: "#fff",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.2s",
+                      width: "100%"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#22c55e";
+                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(34, 197, 94, 0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "#e2e8f0";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#dcfce7", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/offers.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -666,8 +740,29 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Offers</div>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
+                  </button>
+                  <button
+                    onClick={() => router.push("/tracker")}
+                    style={{
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 12,
+                      padding: 20,
+                      minHeight: 95,
+                      background: "#fff",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.2s",
+                      width: "100%"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "#f97316";
+                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(249, 115, 22, 0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "#e2e8f0";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#ffedd5", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/response-rate.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -677,7 +772,7 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Response Rate</div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 </div>
                 <div
                   style={{
@@ -689,7 +784,11 @@ export default function DashboardPage() {
                     flexWrap: "wrap"
                   }}
                 >
-                  <StatusPie breakdown={metricsQ.data.statusBreakdown} showLegend={false} />
+                  <StatusPie
+                    breakdown={metricsQ.data.statusBreakdown}
+                    showLegend={false}
+                    onClick={() => router.push("/tracker")}
+                  />
                   <StatusLegend breakdown={metricsQ.data.statusBreakdown} />
                 </div>
               </div>

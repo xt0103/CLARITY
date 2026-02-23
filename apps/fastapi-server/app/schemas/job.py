@@ -29,6 +29,7 @@ class JobDetail(APIModel):
     isActive: Optional[bool] = None
     jobKeywords: Optional[KeywordsJson] = None
     createdAt: str
+    isFavorite: Optional[bool] = None
 
 
 class JobMatchExplain(APIModel):
@@ -60,6 +61,7 @@ class JobListItem(APIModel):
     isActive: bool
     jobKeywords: Optional[KeywordsJson] = None
     match: Optional[JobMatchExplain] = None
+    isFavorite: Optional[bool] = None
 
 
 class JobListResponse(APIModel):

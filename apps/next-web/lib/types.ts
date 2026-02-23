@@ -64,6 +64,7 @@ export type JobDetailResponse = {
       methods: string[];
     } | null;
     createdAt: string;
+    isFavorite?: boolean | null;
   };
   match?: {
     matchScore?: number | null;
@@ -141,6 +142,7 @@ export type JobListItem = {
     } | null;
     note?: string | null;
   } | null;
+  isFavorite?: boolean | null;
 };
 
 export type JobListResponse = {
@@ -170,6 +172,7 @@ export type ApplicationItem = {
   dateApplied: string;
   status: ApplicationStatus;
   priority?: Priority | null;
+  isFavorite?: boolean | null;
   notes?: string | null;
   createdAt: string;
   updatedAt: string;

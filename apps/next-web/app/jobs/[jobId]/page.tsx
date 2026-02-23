@@ -52,6 +52,21 @@ export default function JobDetailPage() {
     }
   });
 
+  const favoriteMut = useMutation({
+    mutationFn: async (isFavorite: boolean) => {
+      if (!jobId) throw new Error("No job ID");
+      if (isFavorite) {
+        return api.favoriteJob(jobId);
+      } else {
+        return api.unfavoriteJob(jobId);
+      }
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["job", jobId] });
+      await qc.invalidateQueries({ queryKey: ["jobs"] });
+    }
+  });
+
   return (
     <AppShell>
       <div style={{ marginBottom: 10 }}>
@@ -94,17 +109,41 @@ export default function JobDetailPage() {
                   </div>
                 )}
               </div>
-              <button
-                onClick={() => {
-                  const url = jobQ.data?.job.applyUrl || jobQ.data?.job.externalUrl;
-                  if (url) window.open(url, "_blank", "noopener,noreferrer");
-                  setConfirmOpen(true);
-                }}
-                disabled={applyMut.isPending || jobQ.isLoading}
-                style={{ padding: "10px 12px", height: 42 }}
-              >
-                {applyMut.isPending ? "Saving..." : "Apply"}
-              </button>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <button
+                  onClick={() => {
+                    if (!jobQ.data) return;
+                    const isFavorite = jobQ.data.job.isFavorite || false;
+                    favoriteMut.mutate(!isFavorite);
+                  }}
+                  disabled={favoriteMut.isPending || jobQ.isLoading}
+                  style={{
+                    padding: "10px 12px",
+                    height: 42,
+                    borderRadius: 8,
+                    border: "1px solid #e2e8f0",
+                    background: "#fff",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6
+                  }}
+                  title={jobQ.data?.job.isFavorite ? "Unfavorite" : "Favorite"}
+                >
+                  <span style={{ fontSize: 18 }}>{jobQ.data?.job.isFavorite ? "★" : "☆"}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const url = jobQ.data?.job.applyUrl || jobQ.data?.job.externalUrl;
+                    if (url) window.open(url, "_blank", "noopener,noreferrer");
+                    setConfirmOpen(true);
+                  }}
+                  disabled={applyMut.isPending || jobQ.isLoading}
+                  style={{ padding: "10px 12px", height: 42 }}
+                >
+                  {applyMut.isPending ? "Saving..." : "Apply"}
+                </button>
+              </div>
             </div>
 
             <div style={{ marginTop: 10 }}>

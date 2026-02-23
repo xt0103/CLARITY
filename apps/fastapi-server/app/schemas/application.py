@@ -60,6 +60,7 @@ class ApplicationListItem(APIModel):
     notes: Optional[str] = None
     createdAt: str
     updatedAt: str
+    isFavorite: Optional[bool] = None
 
 
 class ApplicationListResponse(APIModel):

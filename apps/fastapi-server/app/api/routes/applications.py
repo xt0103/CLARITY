@@ -9,6 +9,7 @@ from app.api.deps import db_session, get_current_user_id
 from app.core.errors import ApiError
 from app.core.time import to_iso_z, utcnow
 from app.models.application import Application
+from app.models.job_favorite import JobFavorite
 from app.schemas.application import (
     ApplicationCreateRequest,
     ApplicationCreateResponse,
@@ -104,6 +105,11 @@ def list_applications(
     offset = max(page - 1, 0) * pageSize
     rows = db.scalars(stmt.order_by(Application.created_at.desc()).offset(offset).limit(pageSize)).all()
 
+    # Get user's favorite job IDs
+    favorite_job_ids = set(
+        db.scalars(select(JobFavorite.job_id).where(JobFavorite.user_id == user_id)).all()
+    )
+
     return ApplicationListResponse(
         applications=[
             ApplicationListItem(
@@ -119,6 +125,7 @@ def list_applications(
                 notes=r.notes,
                 createdAt=to_iso_z(r.created_at),
                 updatedAt=to_iso_z(r.updated_at),
+                isFavorite=r.job_id in favorite_job_ids if r.job_id else None,
             )
             for r in rows
         ],

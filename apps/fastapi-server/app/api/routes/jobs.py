@@ -16,6 +16,7 @@ from app.match.match_engine import compute_match
 from app.nlp.keyword_extractor import extract_keywords
 from app.nlp.skill_taxonomy import is_known_term
 from app.models.job import Job
+from app.models.job_favorite import JobFavorite
 from app.models.resume import Resume
 from app.models.resume_profile import ResumeProfile
 from app.models.user import User
@@ -125,6 +126,7 @@ def list_jobs(
     location: str = Query("", alias="location"),
     company: str = Query("", alias="company"),
     withMatch: bool = Query(False, alias="withMatch"),
+    favorites: bool = Query(False, alias="favorites"),
     limit: int = Query(20, ge=1, le=200),
     offset: int = Query(0, ge=0),
     user_id: str = Depends(get_current_user_id),
@@ -134,10 +136,18 @@ def list_jobs(
     Simplify-style local job search.
     - SQLite-friendly LIKE search across title/company/location/description_text
     - only returns active jobs
+    - if favorites=true, only returns user's favorited jobs
     """
-    _ = user_id  # auth enforced; not used for filtering jobs (global dataset)
-
     filters = [Job.is_active == True]  # noqa: E712
+
+    # If favorites=true, filter to only user's favorited jobs
+    if favorites:
+        favorite_job_ids = set(
+            db.scalars(select(JobFavorite.job_id).where(JobFavorite.user_id == user_id)).all()
+        )
+        if not favorite_job_ids:
+            return JobListResponse(jobs=[], total=0, limit=limit, offset=offset)
+        filters.append(Job.id.in_(favorite_job_ids))
 
     q = (query or "").strip().lower()
     if q:
@@ -186,6 +196,11 @@ def list_jobs(
         resume_id = user.default_resume_id if user else None
     resume_kws = _get_resume_keywords_for_user(db, user_id=user_id, resume_id=resume_id) if withMatch else None
 
+    # Get user's favorite job IDs
+    favorite_job_ids = set(
+        db.scalars(select(JobFavorite.job_id).where(JobFavorite.user_id == user_id)).all()
+    )
+
     jobs = []
     for j in rows:
         item = JobListItem(
@@ -199,6 +214,7 @@ def list_jobs(
             source=j.source,
             sourceId=j.source_id,
             isActive=bool(j.is_active),
+            isFavorite=j.id in favorite_job_ids,
         )
         if withMatch:
             job_kws = _ensure_job_keywords(db, j) or {}
@@ -248,6 +264,11 @@ def get_job(
     resume_kws = _get_resume_keywords_for_user(db, user_id=user_id, resume_id=rid) if withMatch else None
     m = compute_match(resume_keywords=resume_kws, job_keywords=job_kws) if withMatch else None
 
+    # Check if job is favorited
+    is_favorite = db.scalar(
+        select(JobFavorite).where(JobFavorite.user_id == user_id, JobFavorite.job_id == jobId)
+    ) is not None
+
     return JobDetailResponse(
         job=JobDetail(
             id=job.id,
@@ -265,6 +286,7 @@ def get_job(
             isActive=bool(job.is_active),
             jobKeywords=KeywordsJson(**job_kws) if isinstance(job_kws, dict) else None,
             createdAt=to_iso_z(job.created_at),
+            isFavorite=is_favorite,
         ),
         match=(
             JobMatchExplain(
@@ -281,4 +303,45 @@ def get_job(
             else None
         ),
     )
+
+
+@router.post("/api/jobs/{jobId}/favorite", status_code=201)
+def favorite_job(
+    jobId: str,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(db_session),
+):
+    """Add job to favorites."""
+    job = db.scalar(select(Job).where(Job.id == jobId))
+    if job is None:
+        raise ApiError(status_code=404, code="NOT_FOUND", message="Job not found")
+
+    existing = db.scalar(
+        select(JobFavorite).where(JobFavorite.user_id == user_id, JobFavorite.job_id == jobId)
+    )
+    if existing is not None:
+        return {"message": "Job already favorited"}
+
+    favorite = JobFavorite(user_id=user_id, job_id=jobId)
+    db.add(favorite)
+    db.commit()
+    return {"message": "Job favorited"}
+
+
+@router.delete("/api/jobs/{jobId}/favorite", status_code=200)
+def unfavorite_job(
+    jobId: str,
+    user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(db_session),
+):
+    """Remove job from favorites."""
+    favorite = db.scalar(
+        select(JobFavorite).where(JobFavorite.user_id == user_id, JobFavorite.job_id == jobId)
+    )
+    if favorite is None:
+        raise ApiError(status_code=404, code="NOT_FOUND", message="Favorite not found")
+
+    db.delete(favorite)
+    db.commit()
+    return {"message": "Job unfavorited"}
 

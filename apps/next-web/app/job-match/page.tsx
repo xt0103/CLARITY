@@ -1,7 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/layout/AppShell";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -47,6 +47,20 @@ export default function JobMatchPage() {
       if (sid) {
         setSessions((prev) => prev.map((s) => (s.id === sid ? { ...s, resultsCount: data.jobs.length } : s)));
       }
+    }
+  });
+
+  const qc = useQueryClient();
+  const favoriteMut = useMutation({
+    mutationFn: async ({ jobId, isFavorite }: { jobId: string; isFavorite: boolean }) => {
+      if (isFavorite) {
+        return api.favoriteJob(jobId);
+      } else {
+        return api.unfavoriteJob(jobId);
+      }
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["jobs"] });
     }
   });
 
@@ -472,18 +486,28 @@ export default function JobMatchPage() {
                             Apply ↗
                           </button>
                           <button
-                            onClick={() => window.alert("Saved (coming soon)")}
+                            onClick={() => {
+                              const isFavorite = j.isFavorite || false;
+                              favoriteMut.mutate({ jobId: j.id, isFavorite: !isFavorite });
+                            }}
+                            disabled={favoriteMut.isPending}
                             style={{
                               width: 38,
                               height: 38,
                               borderRadius: 999,
                               border: "1px solid #cbd5e1",
                               background: "#fff",
-                              fontWeight: 900
+                              fontWeight: 900,
+                              fontSize: 18,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: "pointer"
                             }}
-                            aria-label="save"
+                            aria-label={j.isFavorite ? "Unfavorite" : "Favorite"}
+                            title={j.isFavorite ? "Unfavorite" : "Favorite"}
                           >
-                            ⌁
+                            {j.isFavorite ? "★" : "☆"}
                           </button>
                         </div>
                       </div>
@@ -729,8 +753,29 @@ export default function JobMatchPage() {
                           Apply ↗
                         </button>
                         <div style={{ display: "flex", gap: 10 }}>
-                          <button style={{ width: 40, height: 40, borderRadius: 999, border: "1px solid #cbd5e1", background: "#fff", fontWeight: 900 }} onClick={() => window.alert("Saved (coming soon)")}>
-                            ⌁
+                          <button
+                            onClick={() => {
+                              const isFavorite = j.isFavorite || false;
+                              favoriteMut.mutate({ jobId: j.id, isFavorite: !isFavorite });
+                            }}
+                            disabled={favoriteMut.isPending}
+                            style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: 999,
+                              border: "1px solid #cbd5e1",
+                              background: "#fff",
+                              fontWeight: 900,
+                              fontSize: 18,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: "pointer"
+                            }}
+                            aria-label={j.isFavorite ? "Unfavorite" : "Favorite"}
+                            title={j.isFavorite ? "Unfavorite" : "Favorite"}
+                          >
+                            {j.isFavorite ? "★" : "☆"}
                           </button>
                           <button style={{ width: 40, height: 40, borderRadius: 999, border: "1px solid #cbd5e1", background: "#fff", fontWeight: 900 }} onClick={() => window.alert("Notes (coming soon)")}>
                             ⎘

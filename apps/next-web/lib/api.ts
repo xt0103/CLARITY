@@ -47,12 +47,13 @@ export const api = {
   matchSearch: (body: MatchSearchRequest) =>
     apiFetch<MatchSearchResponse>("/api/match/search", { method: "POST", body: JSON.stringify(body) }),
 
-  searchJobs: (params?: { query?: string; location?: string; company?: string; withMatch?: boolean; limit?: number; offset?: number }) => {
+  searchJobs: (params?: { query?: string; location?: string; company?: string; withMatch?: boolean; favorites?: boolean; limit?: number; offset?: number }) => {
     const q = new URLSearchParams();
     if (params?.query) q.set("query", params.query);
     if (params?.location) q.set("location", params.location);
     if (params?.company) q.set("company", params.company);
     if (params?.withMatch) q.set("withMatch", "true");
+    if (params?.favorites) q.set("favorites", "true");
     if (typeof params?.limit === "number") q.set("limit", String(params.limit));
     if (typeof params?.offset === "number") q.set("offset", String(params.offset));
     const suffix = q.toString() ? `?${q.toString()}` : "";
@@ -78,6 +79,9 @@ export const api = {
     apiFetch<PatchApplicationResponse>(`/api/applications/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   deleteApplication: (id: string) => apiFetch<void>(`/api/applications/${id}`, { method: "DELETE" }),
 
-  dashboardMetrics: () => apiFetch<DashboardMetricsResponse>("/api/metrics/dashboard")
+  dashboardMetrics: () => apiFetch<DashboardMetricsResponse>("/api/metrics/dashboard"),
+
+  favoriteJob: (jobId: string) => apiFetch<{ message: string }>(`/api/jobs/${jobId}/favorite`, { method: "POST" }),
+  unfavoriteJob: (jobId: string) => apiFetch<{ message: string }>(`/api/jobs/${jobId}/favorite`, { method: "DELETE" })
 };
 
