@@ -3,6 +3,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { api } from "@/lib/api";
@@ -26,6 +27,7 @@ type ChatMessage = {
 };
 
 export default function JobMatchPage() {
+  const searchParams = useSearchParams();
   const [queryText, setQueryText] = useState("");
   const [result, setResult] = useState<JobListResponse | null>(null);
   const [viewMode, setViewMode] = useState<"home" | "search">("home");
@@ -36,6 +38,7 @@ export default function JobMatchPage() {
   const [stopped, setStopped] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [initialQueryProcessed, setInitialQueryProcessed] = useState(false);
 
   function uniq(xs: string[]) {
     const seen = new Set<string>();
@@ -159,16 +162,31 @@ export default function JobMatchPage() {
     []
   );
 
-  // Default recommendations on first load (empty query = list active jobs)
+  // Check URL query parameter on mount and when searchParams change
   useEffect(() => {
-    // Avoid re-triggering if user already searched.
-    if (result) return;
-    setViewMode("home");
-    pendingSessionIdRef.current = null;
-    searchMut.mutate("");
-    // We intentionally only run this once for homepage recommendations.
+    const urlQuery = searchParams?.get("query");
+    if (urlQuery && !initialQueryProcessed) {
+      const decodedQuery = decodeURIComponent(urlQuery);
+      setQueryText(decodedQuery);
+      setChatInput(decodedQuery);
+      setViewMode("search");
+      setInitialQueryProcessed(true);
+      // Trigger search with the query from URL
+      searchMut.mutate(decodedQuery);
+      // Also send to assistant
+      setTimeout(() => {
+        assistantMut.mutate(decodedQuery);
+      }, 100);
+    } else if (!urlQuery && !initialQueryProcessed) {
+      // Default recommendations on first load (empty query = list active jobs)
+      if (result) return;
+      setViewMode("home");
+      pendingSessionIdRef.current = null;
+      searchMut.mutate("");
+      setInitialQueryProcessed(true);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams]);
 
   const topJobs = useMemo(() => {
     if (!result?.jobs) return [];

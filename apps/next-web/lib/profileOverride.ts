@@ -1,5 +1,11 @@
 export type ProfileOverride = {
   displayName?: string;
+  fullName?: string;
+  phone?: string;
+  location?: string;
+  jobTitle?: string;
+  linkedin?: string;
+  avatarUrl?: string; // Base64 data URL for avatar image
 };
 
 function keyFor(userId: string) {

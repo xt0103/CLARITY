@@ -190,7 +190,6 @@ export default function DashboardPage() {
   });
 
   const [assistantText, setAssistantText] = useState("");
-  const [jobSearchRes, setJobSearchRes] = useState<JobListResponse | null>(null);
 
   const dailyQ = useQuery({
     queryKey: ["dailyMatches", meQ.data?.user.defaultResumeId || null],
@@ -218,15 +217,11 @@ export default function DashboardPage() {
       .map((x) => x.j);
   }, [matchesRaw]);
 
-  const searchMut = useMutation({
-    mutationFn: async () =>
-      api.searchJobs({
-        query: assistantText.trim(),
-        limit: 6,
-        offset: 0
-      }),
-    onSuccess: (res) => setJobSearchRes(res)
-  });
+  const handleSearch = () => {
+    if (assistantText.trim()) {
+      router.push(`/job-match?query=${encodeURIComponent(assistantText.trim())}`);
+    }
+  };
 
   const applyMut = useMutation({
     mutationFn: async (job: MatchJobCard) => {
@@ -547,16 +542,18 @@ export default function DashboardPage() {
                 value={assistantText}
                 onChange={(e) => setAssistantText(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && assistantText.trim() && !searchMut.isPending) searchMut.mutate();
+                  if (e.key === "Enter" && assistantText.trim()) {
+                    handleSearch();
+                  }
                 }}
                 style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #bfdbfe" }}
               />
               <button
-                disabled={!assistantText.trim() || searchMut.isPending}
-                onClick={() => searchMut.mutate()}
-                style={{ padding: "12px 14px", borderRadius: 12, border: "1px solid #2563eb", background: "#2563eb", color: "#fff", fontWeight: 800 }}
+                disabled={!assistantText.trim()}
+                onClick={handleSearch}
+                style={{ padding: "12px 14px", borderRadius: 12, border: "1px solid #2563eb", background: "#2563eb", color: "#fff", fontWeight: 800, cursor: assistantText.trim() ? "pointer" : "not-allowed", opacity: assistantText.trim() ? 1 : 0.5 }}
               >
-                {searchMut.isPending ? "Searching..." : "Search"}
+                Search
               </button>
             </div>
 
@@ -566,62 +563,12 @@ export default function DashboardPage() {
                 <button
                   key={c}
                   onClick={() => setAssistantText((prev) => (prev ? `${prev} ${c}` : c))}
-                  style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#0b1220", color: "#fff", fontSize: 12 }}
+                  style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#0b1220", color: "#fff", fontSize: 12, cursor: "pointer" }}
                 >
                   {c}
                 </button>
               ))}
             </div>
-
-            {searchMut.error && (
-              <div style={{ marginTop: 10, color: "#b91c1c" }}>
-                {searchMut.error instanceof ApiError ? `${searchMut.error.code}: ${searchMut.error.message}` : "Search failed"}
-              </div>
-            )}
-
-            {jobSearchRes && !searchMut.isPending && (
-              <div style={{ marginTop: 12 }}>
-                {jobSearchRes.jobs.length === 0 ? (
-                  <div style={{ color: "#64748b" }}>No jobs found. Try another query.</div>
-                ) : (
-                  <div style={{ display: "grid", gap: 10 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                      <div style={{ fontWeight: 900, color: "#0f172a" }}>
-                        Results: {jobSearchRes.jobs.length}/{jobSearchRes.total}
-                      </div>
-                      <Link href="/job-match" style={{ color: "#2563eb", fontWeight: 900 }}>
-                        Open Job Search →
-                      </Link>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-                      {jobSearchRes.jobs.map((j) => (
-                        <div key={j.id} style={{ background: "#fff", border: "1px solid #dbeafe", borderRadius: 14, padding: 12 }}>
-                          <div style={{ fontWeight: 900 }}>
-                            <Link href={`/jobs/${j.id}`} style={{ color: "#0f172a" }}>
-                              {j.title}
-                            </Link>
-                          </div>
-                          <div style={{ marginTop: 4, color: "#475569", fontSize: 13 }}>
-                            {j.company} · {j.location || "—"}
-                          </div>
-                          <div style={{ marginTop: 10, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-                            <Link href={`/jobs/${j.id}`} style={{ fontWeight: 900, color: "#2563eb" }}>
-                              View details →
-                            </Link>
-                            {j.applyUrl && (
-                              <a href={j.applyUrl} target="_blank" rel="noreferrer" style={{ fontWeight: 900, color: "#2563eb" }}>
-                                Apply ↗
-                              </a>
-                            )}
-                            <div style={{ marginLeft: "auto", fontSize: 12, color: "#64748b" }}>{j.source}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 16 }}>
