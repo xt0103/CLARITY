@@ -39,6 +39,15 @@ export default function JobMatchPage() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [initialQueryProcessed, setInitialQueryProcessed] = useState(false);
+  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when chatMessages change
+  useEffect(() => {
+    if (chatMessagesEndRef.current) {
+      chatMessagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages]);
 
   function uniq(xs: string[]) {
     const seen = new Set<string>();
@@ -52,44 +61,156 @@ export default function JobMatchPage() {
     return out;
   }
 
+  /**
+   * 判断用户输入是搜索查询还是聊天问题
+   * 返回 true 表示是搜索查询，应该直接调用本地搜索
+   * 返回 false 表示是聊天问题，应该调用 OpenAI API
+   */
+  function isSearchQuery(input: string): boolean {
+    const text = input.trim().toLowerCase();
+    if (!text) return false;
+
+    // 明确的聊天问题关键词（优先级最高）
+    const strongChatKeywords = [
+      "如何", "怎么", "为什么", "怎样", "怎么办",
+      "what", "how", "why", "when", "where",
+      "建议", "应该", "可以", "能否", "能不能",
+      "advice", "suggest", "recommend", "should", "can", "could",
+      "准备", "面试", "简历", "求职", "找工作",
+      "prepare", "interview", "resume", "career", "job search",
+      "?", "？", "吗", "呢", "吧"
+    ];
+
+    // 检查是否包含明确的聊天关键词
+    const hasStrongChatKeyword = strongChatKeywords.some(keyword => text.includes(keyword));
+    
+    // 检查是否以问号结尾
+    const endsWithQuestion = text.endsWith("?") || text.endsWith("？");
+    
+    // 检查是否包含岗位相关关键词（搜索查询的特征）
+    const jobKeywords = [
+      "engineer", "developer", "manager", "analyst", "designer", "intern",
+      "工程师", "开发", "经理", "分析师", "设计师", "实习生",
+      "software", "product", "data", "frontend", "backend", "full stack",
+      "软件", "产品", "数据", "前端", "后端", "全栈",
+      "python", "java", "javascript", "react", "node", "aws", "docker",
+      "找", "搜索", "查找", "search", "find", "look for"
+    ];
+    const hasJobKeyword = jobKeywords.some(keyword => text.includes(keyword));
+
+    // 判断逻辑（优先级从高到低）：
+    // 1. 如果包含明确的聊天关键词（如"如何"、"准备面试"），一定是聊天问题
+    if (hasStrongChatKeyword) {
+      // 除非是"找XX岗位"这样的明确搜索意图
+      if (hasJobKeyword && (text.includes("找") || text.includes("search") || text.includes("find"))) {
+        return true; // "找软件工程师" 这样的搜索
+      }
+      return false; // 聊天问题
+    }
+
+    // 2. 如果以问号结尾，通常是聊天问题（除非是"找XX?"这样的搜索）
+    if (endsWithQuestion && !hasJobKeyword) {
+      return false; // 聊天问题
+    }
+
+    // 3. 如果包含岗位关键词且没有聊天特征，是搜索查询
+    if (hasJobKeyword && !endsWithQuestion) {
+      return true; // 搜索查询
+    }
+
+    // 4. 如果很短（<20字符）且不包含问号，可能是搜索查询
+    if (text.length < 20 && !endsWithQuestion && text.split(/\s+/).length <= 3) {
+      return true; // 短搜索查询
+    }
+
+    // 5. 其他情况视为聊天问题
+    return false;
+  }
+
   const searchMut = useMutation({
-    mutationFn: async (q: string) => api.searchJobs({ query: (q || "").trim(), withMatch: true, limit: 50, offset: 0 }),
-    onSuccess: (data) => {
+    mutationFn: async (q: string) => {
+      const query = (q || "").trim();
+      return { query, data: await api.searchJobs({ query, withMatch: true, limit: 50, offset: 0 }) };
+    },
+    onSuccess: ({ query, data }) => {
       setResult(data);
+      setViewMode("search");
       const sid = pendingSessionIdRef.current;
       if (sid) {
         setSessions((prev) => prev.map((s) => (s.id === sid ? { ...s, resultsCount: data.jobs.length } : s)));
       }
+      // 添加用户消息到聊天记录（本地搜索模式）
+      const userMsg: ChatMessage = {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: query,
+        timestamp: Date.now()
+      };
+      // 添加一个简单的助手回复
+      const assistantMsg: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: "assistant",
+        content: data.jobs.length > 0 
+          ? `我找到了 ${data.jobs.length} 个匹配的岗位。请查看右侧的搜索结果。`
+          : `没有找到匹配的岗位。请尝试调整搜索关键词。`,
+        timestamp: Date.now()
+      };
+      setChatMessages((prev) => [...prev, userMsg, assistantMsg]);
     }
   });
 
   const assistantMut = useMutation({
     mutationFn: async (message: string) => {
-      return assistantClient.chat({
-        message,
-        conversationId: conversationId || undefined,
-        context: {
-          searchState: {
-            queryText: queryText,
-            filters: {}
+      console.log("[Assistant] Sending message:", message);
+      
+      try {
+        // 统一走 assistant 接口，由后端决定是快速搜索还是 LLM 聊天
+        const response = await assistantClient.chat({
+          message,
+          conversationId: conversationId || undefined,
+          context: {
+            searchState: {
+              queryText: queryText,
+              filters: {}
+            },
+            // 不再传递 isChatQuestion，由后端判断
+            // Additional context can be added here if needed
+            // e.g., user preferences, interests, etc.
           }
-        }
-      });
+        });
+        console.log("[Assistant] Response received:", response);
+        return { response, sentMessage: message };
+      } catch (error) {
+        console.error("[Assistant] Error:", error);
+        throw error;
+      }
     },
-    onSuccess: (response: ChatResponse) => {
+    onError: (error, variables) => {
+      console.error("[Assistant] Mutation error:", error);
+      // Show error to user
+      const errorMsg: ChatMessage = {
+        id: `error-${Date.now()}`,
+        role: "assistant",
+        content: `抱歉，发送失败：${error instanceof Error ? error.message : "未知错误"}`,
+        timestamp: Date.now()
+      };
+      setChatMessages((prev) => [...prev, errorMsg]);
+    },
+    onSuccess: ({ response, sentMessage }) => {
+      console.log("[Assistant] Success, response:", response);
       setConversationId(response.conversationId);
       
-      // Add messages to chat
+      // Add messages to chat - use sentMessage from mutation variables
       const userMsg: ChatMessage = {
         id: `user-${Date.now()}`,
         role: "user",
-        content: chatInput.trim(),
+        content: sentMessage,
         timestamp: Date.now()
       };
       const assistantMsg: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: "assistant",
-        content: response.assistantText,
+        content: response.assistantText || "抱歉，没有收到回复。",
         timestamp: Date.now()
       };
       setChatMessages((prev) => [...prev, userMsg, assistantMsg]);
@@ -178,12 +299,35 @@ export default function JobMatchPage() {
         assistantMut.mutate(decodedQuery);
       }, 100);
     } else if (!urlQuery && !initialQueryProcessed) {
-      // Default recommendations on first load (empty query = list active jobs)
-      if (result) return;
+      // Initial load: stay in home mode, don't auto-trigger search
+      // Top recommendations will be loaded when user first interacts or when we add a separate query
       setViewMode("home");
       pendingSessionIdRef.current = null;
-      searchMut.mutate("");
       setInitialQueryProcessed(true);
+      // Load top 8 recommendations for home view (sorted by match score)
+      // Only load if we don't have result yet
+      if (!result) {
+        api.searchJobs({ query: "", withMatch: true, limit: 50, offset: 0 })
+          .then((data) => {
+            // Sort by match score and take top 8
+            const sorted = data.jobs
+              .map((j, idx) => ({ j, idx }))
+              .sort((a, b) => {
+                const as = a.j.match?.matchScore;
+                const bs = b.j.match?.matchScore;
+                const av = typeof as === "number" ? as : -1;
+                const bv = typeof bs === "number" ? bs : -1;
+                if (bv !== av) return bv - av;
+                return a.idx - b.idx;
+              })
+              .slice(0, 8)
+              .map((x) => x.j);
+            setResult({ ...data, jobs: sorted });
+          })
+          .catch((err) => {
+            console.error("[Initial load] Failed to load recommendations:", err);
+          });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
@@ -227,19 +371,26 @@ export default function JobMatchPage() {
 
   function doSearch(q: string) {
     const qq = (q || "").trim();
-    setQueryText(q);
-    setChatInput(q);
-    setStopped(false);
+    console.log("[doSearch] Input:", qq);
+    
     if (!qq) {
+      console.log("[doSearch] Empty query, resetting to home");
       setViewMode("home");
       pendingSessionIdRef.current = null;
-      searchMut.mutate("");
+      // 空查询也走 assistant 接口，让后端决定
+      assistantMut.mutate("");
       return;
     }
+    
+    // Update state BEFORE making API calls
+    setQueryText(qq);
+    setStopped(false);
     setViewMode("search");
     const sid = startSession(qq);
     pendingSessionIdRef.current = sid;
-    // Use assistant API instead of direct search
+
+    // 统一走 assistant 接口，由后端决定是快速搜索还是 LLM 聊天
+    console.log("[doSearch] Calling assistantMut (unified path)");
     assistantMut.mutate(qq);
   }
 
@@ -730,29 +881,74 @@ export default function JobMatchPage() {
                 </button>
               </div>
 
-              <div style={{ padding: 14, overflowY: "auto" }}>
-                <div style={{ display: "grid", gap: 12 }}>
-                  <div style={{ background: "#0b2a5b", color: "#fff", padding: 14, borderRadius: 14, maxWidth: 360 }}>
-                    <div style={{ fontWeight: 900 }}>I understand your search.</div>
-                    <div style={{ opacity: 0.92, marginTop: 6, lineHeight: 1.4, fontSize: 13 }}>
-                      Let me help refine your search to find the best matches.
+              <div 
+                ref={chatContainerRef}
+                style={{ padding: 14, overflowY: "auto" }}
+              >
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {chatMessages.length === 0 ? (
+                    // Welcome message when no messages
+                    <div style={{ background: "#0b2a5b", color: "#fff", padding: 14, borderRadius: 14, maxWidth: 360 }}>
+                      <div style={{ fontWeight: 900 }}>欢迎使用 AI Job Assistant</div>
+                      <div style={{ opacity: 0.92, marginTop: 6, lineHeight: 1.4, fontSize: 13 }}>
+                        你可以输入岗位关键词搜索，或提问求职相关问题。我会帮你找到合适的岗位或提供求职建议。
+                      </div>
                     </div>
-                  </div>
-
-                  <div style={{ justifySelf: "end", background: "#fff", padding: 14, borderRadius: 14, maxWidth: 360, border: "1px solid #e2e8f0" }}>
-                    <div style={{ color: "#0f172a", lineHeight: 1.4, fontSize: 13 }}>
-                      {(activeSession?.query || queryText || "").trim()}
+                  ) : (
+                    // Render actual chat messages
+                    chatMessages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        style={{
+                          alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
+                          maxWidth: "70%",
+                        }}
+                      >
+                        <div
+                          style={{
+                            background: msg.role === "user" ? "#fff" : "#0b2a5b",
+                            color: msg.role === "user" ? "#0f172a" : "#fff",
+                            padding: 14,
+                            borderRadius: 14,
+                            border: msg.role === "user" ? "1px solid #e2e8f0" : "none",
+                            boxShadow: msg.role === "user" ? "0 1px 2px rgba(0,0,0,0.05)" : "none",
+                          }}
+                        >
+                          <div
+                            style={{
+                              lineHeight: 1.4,
+                              fontSize: 13,
+                              whiteSpace: "pre-wrap",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {msg.content}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  
+                  {/* Loading indicator */}
+                  {(assistantMut.isPending || searchMut.isPending) && (
+                    <div style={{ alignSelf: "flex-start", maxWidth: "70%" }}>
+                      <div
+                        style={{
+                          background: "#0b2a5b",
+                          color: "#fff",
+                          padding: 14,
+                          borderRadius: 14,
+                        }}
+                      >
+                        <div style={{ lineHeight: 1.4, fontSize: 13, opacity: 0.92 }}>
+                          正在思考中...
+                        </div>
+                      </div>
                     </div>
-                  </div>
-
-                  <div style={{ background: "#0b2a5b", color: "#fff", padding: 14, borderRadius: 14, maxWidth: 360 }}>
-                    <div style={{ fontWeight: 900 }}>Great!</div>
-                    <div style={{ opacity: 0.92, marginTop: 6, lineHeight: 1.4, fontSize: 13 }}>
-                      {searchMut.isPending && !stopped
-                        ? "Searching and analyzing your matches…"
-                        : `Found ${result?.jobs?.length ?? 0} roles matching your criteria. Review the top matches on the right.`}
-                    </div>
-                  </div>
+                  )}
+                  
+                  {/* Scroll anchor */}
+                  <div ref={chatMessagesEndRef} />
                 </div>
               </div>
 
@@ -769,24 +965,42 @@ export default function JobMatchPage() {
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && chatInput.trim() && !assistantMut.isPending) {
-                        doSearch(chatInput);
+                      if (e.key === "Enter" && chatInput.trim() && !assistantMut.isPending && !searchMut.isPending) {
+                        e.preventDefault();
+                        const msg = chatInput.trim();
                         setChatInput("");
+                        doSearch(msg);
                       }
                     }}
                     placeholder="Please describe your job search objectives..."
                     style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #e2e8f0" }}
                   />
                   <button
-                    onClick={() => {
-                      doSearch(chatInput);
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const msg = chatInput.trim();
+                      if (!msg || assistantMut.isPending || searchMut.isPending) {
+                        console.log("[Button] Cannot send:", { msg, assistantPending: assistantMut.isPending, searchPending: searchMut.isPending });
+                        return;
+                      }
+                      console.log("[Button] Sending:", msg);
                       setChatInput("");
+                      doSearch(msg);
                     }}
-                    disabled={!chatInput.trim() || assistantMut.isPending}
-                    style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: "#2563eb", color: "#fff", fontWeight: 900 }}
+                    disabled={!chatInput.trim() || (assistantMut.isPending || searchMut.isPending)}
+                    style={{ 
+                      width: 40, 
+                      height: 40, 
+                      borderRadius: 999, 
+                      border: 0, 
+                      background: (!chatInput.trim() || assistantMut.isPending || searchMut.isPending) ? "#94a3b8" : "#2563eb", 
+                      color: "#fff", 
+                      fontWeight: 900,
+                      cursor: (!chatInput.trim() || assistantMut.isPending || searchMut.isPending) ? "not-allowed" : "pointer"
+                    }}
                     aria-label="send"
                   >
-                    ↑
+                    {assistantMut.isPending || searchMut.isPending ? "..." : "↑"}
                   </button>
                 </div>
               </div>

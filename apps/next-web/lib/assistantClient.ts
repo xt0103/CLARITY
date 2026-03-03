@@ -9,6 +9,7 @@ export type ChatRequest = {
       queryText?: string;
       filters?: Record<string, any>;
     };
+    isChatQuestion?: boolean; // Flag to indicate this is a chat question, not a job search
   } | null;
 };
 

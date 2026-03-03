@@ -31,7 +31,7 @@ TOOLS_SCHEMA = [
         "type": "function",
         "function": {
             "name": "search_jobs",
-            "description": "Search for jobs from the database. Use this when user asks to find, search, filter, or recommend jobs.",
+            "description": "Search for jobs from the database. ONLY use this when user explicitly asks to find, search, filter, or recommend specific jobs. DO NOT use for general questions about interview preparation, resume writing, career advice, or job search tips. Examples of when to use: '找软件工程师', 'search for Python jobs', '推荐岗位'. Examples of when NOT to use: '如何准备面试', 'how to prepare for interview', '怎么写简历', 'career advice'.",
             "parameters": {
                 "type": "object",
                 "properties": {

@@ -2,15 +2,95 @@
 Assistant service for handling conversations with OpenAI.
 """
 import json
+import logging
 from typing import Any, Optional
 
 from openai import OpenAI
 from sqlalchemy.orm import Session
+from sqlalchemy import select, and_, func, or_
 
 from app.core.config import settings
 from app.core.errors import ApiError
 from app.assistant.prompt import SYSTEM_PROMPT
-from app.assistant.tools import TOOLS_SCHEMA, execute_tool
+from app.assistant.tools import TOOLS_SCHEMA, execute_tool, execute_search_jobs
+from app.models.user import User
+from app.models.job import Job
+from app.models.job_favorite import JobFavorite
+from app.api.routes.jobs import _get_resume_keywords_for_user
+from app.core.time import to_iso_z
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+def looks_like_quick_search(text: str) -> bool:
+    """
+    Conservative function to determine if input looks like a quick search query.
+    Returns True if it should use DIRECT_SEARCH (skip OpenAI, query DB directly).
+    
+    Rules (in order of priority):
+    1. If contains chat intent words -> return False (force LLM_CHAT)
+    2. If contains ? or ？ -> return False (force LLM_CHAT)
+    3. Only return True if:
+       A) Contains explicit search verbs (precise, not generic)
+       B) OR is a keyword phrase (short, no punctuation, no question words)
+    """
+    if not text or not text.strip():
+        return False
+    
+    text_lower = text.strip().lower()
+    text_len = len(text_lower)
+    
+    # Rule 1: Chat intent words blacklist - if contains any, must return False
+    chat_intent_words = [
+        "怎么", "如何", "为什么", "建议", "准备", "面试", "简历", "职业", "规划",
+        "适合", "优势", "缺点", "怎么办", "可不可以", "能不能", "该不该",
+        "选择", "对比", "喜欢", "兴趣", "爱好", "为什么", 
+        "help me", "how to", "what should", "should I", "can you", "could you",
+        "advice", "tips", "guide", "prepare", "prepare for"
+    ]
+    has_chat_intent = any(word in text_lower for word in chat_intent_words)
+    if has_chat_intent:
+        return False
+    
+    # Rule 2: If contains question mark, must return False
+    is_question = "?" in text_lower or "？" in text_lower
+    if is_question:
+        return False
+    
+    # Rule 3A: Explicit search verbs (precise, not generic like "推荐" or "查")
+    explicit_search_verbs = [
+        "找工作", "找岗位", "搜岗位", "搜索岗位", "推荐岗位", "推荐工作",
+        "search jobs", "find jobs", "look for jobs", "looking for jobs"
+    ]
+    has_explicit_search_verb = any(verb in text_lower for verb in explicit_search_verbs)
+    if has_explicit_search_verb:
+        return True
+    
+    # Rule 3B: Keyword phrase conditions (very strict)
+    # - Length <= 30 (to accommodate longer English phrases like "software engineer singapore")
+    # - No Chinese question/emotion words (吗/呢/啊/呀)
+    # - No punctuation (period/comma/exclamation)
+    # - Word count <= 6
+    chinese_question_words = ["吗", "呢", "啊", "呀"]
+    has_chinese_question_word = any(word in text_lower for word in chinese_question_words)
+    
+    punctuation = [".", ",", "!", "。", "，", "！"]
+    has_punctuation = any(p in text_lower for p in punctuation)
+    
+    word_count = len(text_lower.split())
+    
+    if (text_len <= 30 and 
+        not has_chinese_question_word and 
+        not has_punctuation and 
+        word_count <= 6):
+        return True
+    
+    return False
 
 
 def chat_with_assistant(
@@ -63,12 +143,127 @@ def chat_with_assistant(
         .order_by(AssistantMessage.created_at)
     ).all()
     
+    # Get user's resume information for context
+    user = db.scalar(select(User).where(User.id == user_id))
+    resume_id = user.default_resume_id if user else None
+    resume_keywords = _get_resume_keywords_for_user(db, user_id=user_id, resume_id=resume_id)
+    
+    # Check if this is a quick search (DIRECT_SEARCH mode)
+    is_quick_search = looks_like_quick_search(message)
+    mode = "DIRECT_SEARCH" if is_quick_search else "LLM_CHAT"
+    logger.info(f"[Assistant] Mode: {mode}, quick_search: {is_quick_search}, Message: {message[:100]}")
+    
+    # DIRECT_SEARCH: Skip OpenAI, query DB directly
+    if is_quick_search:
+        try:
+            # Use execute_search_jobs to get results
+            search_result = execute_search_jobs(
+                db=db,
+                user_id=user_id,
+                query_text=message,
+                filters={},
+                limit=50,
+                offset=0,
+                sort_by="match"
+            )
+            
+            # Build response
+            jobs = search_result.get("jobs", [])
+            total = search_result.get("total", 0)
+            
+            if total == 0:
+                assistant_text = "我没有在数据库中找到匹配岗位。你可以换关键词/地点，或告诉我你想要的方向我来帮你推荐。"
+            else:
+                assistant_text = f"我找到了 {total} 个匹配的岗位。请查看右侧的搜索结果。"
+            
+            # Build UI actions
+            ui_actions = [
+                {
+                    "type": "SET_SEARCH_QUERY",
+                    "payload": {
+                        "queryText": message,
+                        "filters": {}
+                    }
+                },
+                {
+                    "type": "SET_SEARCH_RESULTS",
+                    "payload": {
+                        "jobs": jobs,
+                        "total": total
+                    }
+                }
+            ]
+            
+            # Save user message
+            user_msg = AssistantMessage(
+                conversation_id=conversation_id,
+                role="user",
+                content=message
+            )
+            db.add(user_msg)
+            
+            # Save assistant message
+            assistant_msg = AssistantMessage(
+                conversation_id=conversation_id,
+                role="assistant",
+                content=assistant_text
+            )
+            db.add(assistant_msg)
+            db.commit()
+            
+            return {
+                "conversationId": conversation_id,
+                "assistantText": assistant_text,
+                "uiActions": ui_actions,
+                "debug": {"mode": mode}
+            }
+        except Exception as e:
+            logger.error(f"[Assistant] DIRECT_SEARCH error: {e}", exc_info=True)
+            # Fall through to LLM_CHAT on error
+            mode = "LLM_CHAT"
+            is_quick_search = False
+    
+    # LLM_CHAT: Use OpenAI with tools always available
+    # Build enhanced context
+    enhanced_context = context.copy() if context else {}
+    
+    if resume_keywords:
+        enhanced_context["resume"] = {
+            "hasResume": True,
+            "keywords": resume_keywords,
+            "skills": resume_keywords.get("skills", []),
+            "tools": resume_keywords.get("tools", []),
+            "domain": resume_keywords.get("domain", []),
+            "titles": resume_keywords.get("titles", []),
+        }
+    else:
+        enhanced_context["resume"] = {"hasResume": False}
+    
     # Build messages for OpenAI
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     
-    # Add context if provided
-    if context:
-        context_str = f"User context: {json.dumps(context, ensure_ascii=False)}"
+    # Add enhanced context
+    context_parts = []
+    if enhanced_context.get("resume", {}).get("hasResume"):
+        resume_info = enhanced_context["resume"]
+        context_parts.append("User has uploaded a resume with the following skills and experience:")
+        if resume_info.get("skills"):
+            context_parts.append(f"- Skills: {', '.join(resume_info['skills'][:10])}")
+        if resume_info.get("tools"):
+            context_parts.append(f"- Tools/Technologies: {', '.join(resume_info['tools'][:10])}")
+        if resume_info.get("domain"):
+            context_parts.append(f"- Domain Experience: {', '.join(resume_info['domain'][:10])}")
+        if resume_info.get("titles"):
+            context_parts.append(f"- Previous Roles: {', '.join(resume_info['titles'][:5])}")
+        context_parts.append("When recommending jobs, prioritize matches with these skills and experience.")
+    else:
+        context_parts.append("User has not uploaded a resume yet. You can still help them find jobs based on their preferences and interests.")
+    
+    if enhanced_context.get("searchState"):
+        context_parts.append(f"Current search state: {json.dumps(enhanced_context['searchState'], ensure_ascii=False)}")
+    
+    if context_parts:
+        context_str = "\n".join(context_parts)
         messages.append({"role": "system", "content": context_str})
     
     # Add conversation history
@@ -115,12 +310,14 @@ def chat_with_assistant(
     while iteration < max_iterations:
         iteration += 1
         
+        # LLM_CHAT: Always provide tools, let OpenAI decide when to use them
+        logger.debug(f"[Assistant] LLM_CHAT iteration {iteration}, calling OpenAI with tools")
         response = client.chat.completions.create(
             model=settings.OPENAI_MODEL,
             messages=messages,
             tools=TOOLS_SCHEMA,
-            tool_choice="auto",
-            temperature=0.7,
+            tool_choice="auto",  # Let OpenAI decide when to use tools
+            temperature=0.8,  # Slightly higher for more varied, personalized responses
         )
         
         assistant_message = response.choices[0].message
@@ -274,13 +471,25 @@ def chat_with_assistant(
             db.add(assistant_msg)
             db.commit()
             
+            # Log LLM_CHAT results
+            tool_calls_count = len(tool_calls_executed) if tool_calls_executed else 0
+            assistant_text_len = len(assistant_text) if assistant_text else 0
+            logger.info(
+                f"[Assistant] LLM_CHAT completed - "
+                f"mode: {mode}, quick_search: {is_quick_search}, "
+                f"message: {message[:50]}, "
+                f"assistantText_len: {assistant_text_len}, "
+                f"tool_calls_count: {tool_calls_count}"
+            )
+            
             return {
                 "conversationId": conversation_id,
                 "assistantText": assistant_text,
                 "uiActions": ui_actions,
                 "debug": {
+                    "mode": mode,
                     "toolCalls": tool_calls_executed
-                } if tool_calls_executed else None
+                } if tool_calls_executed else {"mode": mode}
             }
     
     # If we exit loop without final response, return error
