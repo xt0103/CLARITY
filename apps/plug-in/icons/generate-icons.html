@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>生成插件图标</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      margin: 10px;
+      display: block;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #764ba2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>生成插件图标</h1>
+    <p>点击下面的按钮生成不同尺寸的图标，然后右键点击画布保存为PNG文件。</p>
+    
+    <h3>128x128 (icon128.png)</h3>
+    <canvas id="canvas128" width="128" height="128"></canvas>
+    <button onclick="downloadCanvas('canvas128', 'icon128.png')">下载 128x128</button>
+    
+    <h3>48x48 (icon48.png)</h3>
+    <canvas id="canvas48" width="48" height="48"></canvas>
+    <button onclick="downloadCanvas('canvas48', 'icon48.png')">下载 48x48</button>
+    
+    <h3>16x16 (icon16.png)</h3>
+    <canvas id="canvas16" width="16" height="16"></canvas>
+    <button onclick="downloadCanvas('canvas16', 'icon16.png')">下载 16x16</button>
+  </div>
+
+  <script>
+    function drawIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      // 创建渐变背景
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#667eea');
+      gradient.addColorStop(1, '#764ba2');
+      
+      // 绘制圆角矩形背景
+      const radius = size * 0.15;
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      ctx.fill();
+      
+      // 绘制表单图标（简单的文档和笔）
+      ctx.fillStyle = 'white';
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = size * 0.05;
+      
+      // 绘制文档
+      const docX = size * 0.25;
+      const docY = size * 0.2;
+      const docW = size * 0.5;
+      const docH = size * 0.6;
+      
+      ctx.beginPath();
+      ctx.rect(docX, docY, docW, docH);
+      ctx.stroke();
+      
+      // 绘制文档中的线条（表单字段）
+      const lineSpacing = docH / 4;
+      for (let i = 1; i < 4; i++) {
+        ctx.beginPath();
+        ctx.moveTo(docX + size * 0.1, docY + lineSpacing * i);
+        ctx.lineTo(docX + docW - size * 0.1, docY + lineSpacing * i);
+        ctx.stroke();
+      }
+      
+      // 绘制笔（在右上角）
+      const penX = size * 0.65;
+      const penY = size * 0.15;
+      ctx.beginPath();
+      ctx.moveTo(penX, penY);
+      ctx.lineTo(penX + size * 0.15, penY + size * 0.2);
+      ctx.lineTo(penX + size * 0.1, penY + size * 0.25);
+      ctx.lineTo(penX - size * 0.05, penY + size * 0.1);
+      ctx.closePath();
+      ctx.fill();
+    }
+    
+    function downloadCanvas(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+    
+    // 生成所有图标
+    window.onload = function() {
+      drawIcon('canvas128', 128);
+      drawIcon('canvas48', 48);
+      drawIcon('canvas16', 16);
+    };
+  </script>
+</body>
+</html>
+

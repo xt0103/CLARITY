@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xiaotian's Job Application Copilot - 设置</title>
+    <link rel="stylesheet" href="options.css" />
+    <link rel="stylesheet" href="lib/flatpickr/flatpickr.min.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>⚙️ Xiaotian's Job Application Copilot 设置</h1>
+        <p class="subtitle">上传 PDF 简历或手动填写，配置字段映射</p>
+      </div>
+
+      <div class="section">
+        <h2>📄 上传 PDF 简历</h2>
+
+        <div class="resume-section">
+          <p class="section-desc">
+            上传 PDF 简历后，系统将使用 AI
+            自动提取信息并填入下方模板，您可核对并修改。请先在下方配置 AI API
+            Key。
+          </p>
+          <div class="file-input-wrapper">
+            <input
+              type="file"
+              id="pdfFileInput"
+              accept=".pdf"
+              style="display: none"
+            />
+            <button id="selectPdfButton" class="btn btn-primary">
+              <span class="btn-icon">📄</span>
+              上传 PDF 简历
+            </button>
+            <span id="pdfFileName" class="file-name">未选择文件</span>
+          </div>
+          <div id="resumeStatus" class="status-message"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📝 填写个人信息</h2>
+
+        <div class="resume-section">
+          <p class="section-desc">
+            在下方模板中填写或修改您的个人信息。填写完成后点击「保存简历数据」。
+          </p>
+          <div class="resume-plugin resume-layout">
+            <main class="resume-main">
+              <div class="resume-form">
+                <form
+                  id="resumeTemplateForm"
+                  class="el-form el-form--label-top"
+                ></form>
+                <div class="template-form-actions">
+                  <button
+                    type="button"
+                    id="saveResumeButton"
+                    class="btn btn-primary"
+                  >
+                    <span class="btn-icon">💾</span>
+                    保存简历数据
+                  </button>
+                </div>
+                <div id="resumeSaveStatus" class="status-message"></div>
+              </div>
+            </main>
+            <aside class="module-nav">
+              <div class="module-nav__list" id="resumeNav"></div>
+            </aside>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔗 字段映射配置</h2>
+
+        <div class="mapping-section">
+          <div class="mapping-controls">
+            <button id="autoMatchButton" class="btn btn-secondary" disabled>
+              <span class="btn-icon">🔍</span>
+              自动匹配
+            </button>
+            <button id="clearMappingsButton" class="btn btn-secondary" disabled>
+              <span class="btn-icon">🗑️</span>
+              清除映射
+            </button>
+            <span id="matchMethodHint" class="match-method-hint"></span>
+          </div>
+
+          <div id="mappingStatus" class="status-message"></div>
+
+          <div id="mappingList" class="mapping-list">
+            <p class="empty-message">请先填写个人信息并检测表单字段</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📐 句向量匹配</h2>
+
+        <div class="embedding-section">
+          <p class="section-desc">
+            填写表单时，使用句向量（Embedding）语义匹配表单字段与您的数据。支持
+            OpenAI 兼容的 Embedding API（如
+            text-embedding-3-small）。若您使用其他 API，请提供接口格式。
+          </p>
+          <div class="form-row">
+            <label for="embeddingApiKey">Embedding API Key</label>
+            <input
+              type="password"
+              id="embeddingApiKey"
+              placeholder="sk-xxx 或您的 API Key"
+              autocomplete="off"
+            />
+          </div>
+          <div class="form-row">
+            <label for="embeddingBaseUrl">API Base URL（可选）</label>
+            <input
+              type="text"
+              id="embeddingBaseUrl"
+              placeholder="https://api.openai.com/v1（留空使用默认）"
+            />
+          </div>
+          <div class="form-row">
+            <label for="embeddingModel">Model（可选）</label>
+            <input
+              type="text"
+              id="embeddingModel"
+              placeholder="text-embedding-3-small（留空使用默认）"
+            />
+          </div>
+          <div class="form-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="embeddingEnabled" checked />
+              启用句向量匹配（自动匹配与一键填写时使用）
+            </label>
+          </div>
+          <div id="embeddingStatus" class="status-message"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🤖 AI 辅助填写</h2>
+
+        <div class="ai-section">
+          <p class="ai-description">
+            对第一轮未匹配到的字段，调用 AI
+            判断存储数据中是否有可填入的信息。支持 OpenAI 兼容 API。
+          </p>
+          <div class="form-row">
+            <label for="aiApiKey">API Key</label>
+            <input
+              type="password"
+              id="aiApiKey"
+              placeholder="sk-xxx 或您的 API Key"
+              autocomplete="off"
+            />
+          </div>
+          <div class="form-row">
+            <label for="aiBaseUrl">API Base URL（可选）</label>
+            <input
+              type="text"
+              id="aiBaseUrl"
+              placeholder="https://api.openai.com/v1（留空使用默认）"
+            />
+          </div>
+          <div class="form-row">
+            <label for="aiModel">Model（可选）</label>
+            <input
+              type="text"
+              id="aiModel"
+              placeholder="gpt-4o-mini（留空使用默认）"
+            />
+          </div>
+          <div class="form-row">
+            <label class="checkbox-label">
+              <input type="checkbox" id="aiEnabled" checked />
+              启用 AI 辅助填写
+            </label>
+          </div>
+          <div id="aiStatus" class="status-message"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📋 表单字段检测</h2>
+
+        <div class="detection-section">
+          <button id="detectFieldsButton" class="btn btn-primary">
+            <span class="btn-icon">🔍</span>
+            检测当前页面表单字段
+          </button>
+
+          <div id="detectedFields" class="fields-list" style="display: none">
+            <h3>检测到的字段</h3>
+            <div id="fieldsContainer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button id="saveButton" class="btn btn-primary" disabled>
+          <span class="btn-icon">💾</span>
+          保存配置
+        </button>
+        <button id="exportDataButton" class="btn btn-secondary">
+          <span class="btn-icon">📥</span>
+          导出数据模板
+        </button>
+        <input
+          type="file"
+          id="importDataInput"
+          accept=".json"
+          style="display: none"
+        />
+        <button id="importDataButton" class="btn btn-secondary">
+          <span class="btn-icon">📤</span>
+          导入数据模板
+        </button>
+        <button id="clearAllButton" class="btn btn-danger">
+          <span class="btn-icon">🗑️</span>
+          清除所有数据
+        </button>
+      </div>
+    </div>
+
+    <script src="lib/flatpickr/flatpickr.min.js"></script>
+    <script src="lib/flatpickr/l10n/zh.js"></script>
+    <script src="utils/formDetector.js"></script>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xiaotian's Job Application Copilot</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Xiaotian's Job Application Copilot</h1>
+      </div>
+
+      <div class="status-section" id="statusSection">
+        <div class="status-item">
+          <span class="status-label">表单字段:</span>
+          <span class="status-value" id="fieldCount">检测中...</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">数据状态:</span>
+          <span class="status-value" id="dataStatus">检查中...</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">匹配方式:</span>
+          <span class="status-value" id="matchMethodStatus">-</span>
+        </div>
+      </div>
+
+      <div class="action-section">
+        <button id="fillButton" class="btn btn-primary" disabled>
+          <span class="btn-icon">✏️</span>
+          一键填写
+        </button>
+        <button id="refreshButton" class="btn btn-secondary">
+          <span class="btn-icon">🔄</span>
+          刷新检测
+        </button>
+      </div>
+
+      <div class="result-section" id="resultSection" style="display: none">
+        <div class="result-message" id="resultMessage"></div>
+      </div>
+
+      <div class="footer">
+        <a href="#" id="optionsLink" class="link">⚙️ 打开设置</a>
+      </div>
+    </div>
+
+    <script src="utils/formDetector.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

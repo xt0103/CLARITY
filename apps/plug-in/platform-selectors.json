@@ -1,0 +1,36 @@
+{
+  "ANT_SELECT_SELECTORS_CONFIG": {
+    "option_container_selector": ".ant-select-dropdown, .ant-dropdown",
+    "option_selector": ".ant-select-dropdown-menu-item, .ant-select-item, .ant-menu-item, .ant-select-item-option, li[role='option']"
+  },
+  "EL_SELECT_SELECTORS_CONFIG": {
+    "option_container_selector": ".el-select-dropdown, .el-dropdown-menu",
+    "option_selector": ".el-select-dropdown__item, .el-dropdown-menu__item"
+  },
+  "MOKAH_SELECTORS_CONFIG": {
+    "group_class": "[class^='apply-block-'] [class^='apply-fields']",
+    "level1_class": "[class^='apply-block-'] [class^='blockTitle']",
+    "level2_class": "[class^='apply-block-'] [class^='title-']",
+    "option_container_selector": "[class*='sd-Dropdown-dropdown-']",
+    "option_selector": "[class*='sd-Menu-content-item']"
+  },
+  "BEISEN_SELECTORS_CONFIG": {
+    "group_class": "[class~=\"ux-standard-form\"]",
+    "level1_class": "[id*=\"_Recruitment_\"]:not(:has(*)), [class='dl_menutit']",
+    "level2_class": "[class^='form-item__text']",
+    "option_container_selector": "[class='phoenix-selectList__list']",
+    "option_selector": "[class*='phoenix-selectList__listItem']"
+  },
+  "ATSX_SELECTORS_CONFIG": {
+    "group_class": ".resumeEditForm-item",
+    "level1_class": ".createFormSection-title",
+    "level2_class": ".atsx-form-item-label",
+    "option_container_selector": ".atsx-select-dropdown",
+    "option_selector": "li[role=\"option\"]"
+  },
+  "HOTJOB_SELECTORS_CONFIG": {
+    "group_class": "[class~=\"form-cell-inner\"]",
+    "level1_class": ".tit",
+    "level2_class": ".ant-form-item-label"
+  }
+}

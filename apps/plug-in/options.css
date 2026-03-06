@@ -1,0 +1,667 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 牛客/Element Plus CSS 变量（与牛客前端代码 inline-inline-0.css 一致） */
+:root {
+  --el-color-primary: #409eff;
+  --el-color-primary-light-3: #79bbff;
+  --el-color-primary-light-5: #a0cfff;
+  --el-color-primary-light-7: #c6e2ff;
+  --el-color-primary-light-8: #d9ecff;
+  --el-color-primary-light-9: #ecf5ff;
+  --el-color-danger: #f56c6c;
+  --el-color-danger-light-9: #fef0f0;
+  --el-text-color-primary: #303133;
+  --el-text-color-regular: #606266;
+  --el-text-color-placeholder: #a8abb2;
+  --el-border-color: #dcdfe6;
+  --el-border-color-light: #e4e7ed;
+  --el-fill-color-blank: #ffffff;
+  --el-font-size-base: 14px;
+  --el-font-size-small: 13px;
+  --el-font-family:
+    "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  --el-border-radius-base: 4px;
+  --el-border-radius-small: 2px;
+}
+
+body {
+  font-family:
+    "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
+  background: #f5f5f5;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.header {
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  color: white;
+  padding: 24px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.section {
+  padding: 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.section:last-of-type {
+  border-bottom: none;
+}
+
+.section h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.section-desc {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* 牛客风格模板表单 - 主内容 + 右侧固定侧边栏（照抄牛客 el-affix 固定右侧） */
+.resume-layout {
+  position: relative;
+  margin-top: 16px;
+}
+
+.resume-main {
+  margin-right: 220px;
+  min-width: 0;
+}
+
+/* 照抄牛客 module-nav 侧边栏 */
+.module-nav {
+  position: fixed;
+  right: 24px;
+  top: 80px;
+  width: 180px;
+  z-index: 100;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e4e7ed;
+  padding: 12px 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.module-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.module-nav__item {
+  cursor: pointer;
+}
+
+.module-nav__text {
+  display: block;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #606266;
+  transition:
+    color 0.2s,
+    background 0.2s;
+  border-left: 3px solid transparent;
+}
+
+.module-nav__text:hover,
+.module-nav__text--active {
+  color: #409eff;
+  background: #ecf5ff;
+  border-left-color: #409eff;
+}
+
+/* 照抄牛客 resume-form、el-form 结构 */
+.resume-form .el-form {
+  --el-form-label-font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.el-form--label-top .el-form-item {
+  display: block;
+}
+
+.el-form--label-top .el-form-item .el-form-item__label {
+  display: block;
+  height: auto;
+  line-height: 22px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.el-form-item {
+  display: flex;
+  margin-bottom: 18px;
+}
+
+.el-form-item .el-form-item {
+  margin-bottom: 0;
+}
+
+.el-form-item__label {
+  color: #606266;
+  font-size: 14px;
+  padding: 0 12px 0 0;
+}
+
+.el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:after {
+  color: #f56c6c;
+  content: "*";
+  margin-left: 4px;
+}
+
+.el-form-item__content {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  line-height: 32px;
+  min-width: 0;
+}
+
+/* 照抄牛客 module-card、section-header */
+.module-card {
+  background: #fff;
+  border: 1px solid #e4e7ed;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.section-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e4e7ed;
+  background: #fafafa;
+}
+
+.section-header__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.module-card__custom {
+  padding: 20px;
+}
+
+/* 照抄牛客 array-group */
+.array-group {
+  padding: 16px;
+  background: #fafafa;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.array-group__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.array-group__index {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.array-group__delete {
+  padding: 5px 11px;
+  font-size: 12px;
+}
+
+.array-group__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0 24px;
+}
+
+.array-group__fields .el-form-item {
+  margin-bottom: 18px;
+}
+
+/* 照抄牛客 el-input__inner、el-date-editor */
+.el-input__inner {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #fff;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: #606266;
+  display: inline-block;
+  font-size: 14px;
+  height: 40px;
+  line-height: 40px;
+  outline: 0;
+  padding: 0 15px;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+
+.el-input__inner:focus {
+  border-color: #409eff;
+  outline: none;
+}
+
+.el-input__inner::placeholder {
+  color: #a8abb2;
+}
+
+.el-form-item__content select.el-input__inner {
+  cursor: pointer;
+  -webkit-appearance: auto;
+  appearance: auto;
+}
+
+.el-form-item__content .input-wrapper {
+  width: 100%;
+}
+
+.el-form-item__content .date-picker-wrapper {
+  width: 100%;
+}
+
+/* flatpickr 日历弹层 z-index，确保在表单上方 */
+.flatpickr-calendar {
+  z-index: 9999 !important;
+}
+
+.el-date-editor.el-input {
+  display: flex;
+  width: 100%;
+}
+
+.el-date-editor .el-input__inner {
+  flex: 1;
+  min-width: 0;
+}
+
+.el-date-editor input.el-input__inner {
+  line-height: 38px;
+}
+
+.el-date-editor .el-input__prefix,
+.el-date-editor .el-input__suffix {
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.el-textarea__inner {
+  min-height: 80px;
+  padding: 8px 15px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* 照抄牛客 el-button */
+.el-button {
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #dcdfe6;
+  background: #fff;
+  color: #606266;
+}
+
+.el-button--primary {
+  background: #409eff;
+  border-color: #409eff;
+  color: #fff;
+}
+
+.el-button--danger {
+  background: #f56c6c;
+  border-color: #f56c6c;
+  color: #fff;
+}
+
+.el-button--small {
+  padding: 5px 11px;
+  font-size: 12px;
+}
+
+.btn-add-item {
+  margin-top: 8px;
+}
+
+.template-form-actions {
+  margin-top: 20px;
+  margin-bottom: 12px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.btn-danger {
+  background: #f44336;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #d32f2f;
+}
+
+.btn-icon {
+  font-size: 16px;
+}
+
+.file-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.file-name {
+  color: #666;
+  font-size: 13px;
+}
+
+.status-message {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: none;
+}
+
+.status-message.show {
+  display: block;
+}
+
+.status-message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-message.info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.csv-preview {
+  margin-top: 16px;
+}
+
+.csv-preview h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.preview-info {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #666;
+}
+
+.table-wrapper {
+  max-height: 400px;
+  overflow: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead {
+  background: #f5f5f5;
+  position: sticky;
+  top: 0;
+}
+
+th,
+td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+  font-weight: 600;
+  color: #333;
+}
+
+tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.mapping-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.match-method-hint {
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.mapping-list {
+  margin-top: 16px;
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  padding: 40px;
+  font-size: 14px;
+}
+
+.mapping-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.mapping-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mapping-item-label {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.mapping-item-details {
+  font-size: 12px;
+  color: #666;
+}
+
+.mapping-item-select {
+  flex: 0 0 200px;
+}
+
+.mapping-item-select,
+.mapping-item-select select {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  background: white;
+}
+
+.fields-list {
+  margin-top: 16px;
+}
+
+.fields-list h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.field-item {
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.field-item-label {
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.field-item-details {
+  font-size: 12px;
+  color: #666;
+}
+
+.detection-section {
+  margin-top: 16px;
+}
+
+.embedding-section,
+.ai-section {
+  margin-top: 12px;
+}
+
+.ai-description {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.form-row {
+  margin-bottom: 12px;
+}
+
+.form-row label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.form-row input[type="text"],
+.form-row input[type="password"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-row input[type="text"]:focus,
+.form-row input[type="password"]:focus {
+  outline: none;
+  border-color: #409eff;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.footer {
+  padding: 24px;
+  background: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}

@@ -1,0 +1,17 @@
+{
+  "name": "jobhunting",
+  "version": "1.0.0",
+  "description": "一个Chrome浏览器插件，可以自动读取网页表单并填写本地CSV数据库中的信息。",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "mkdir -p lib/flatpickr/l10n && cp node_modules/flatpickr/dist/flatpickr.min.js node_modules/flatpickr/dist/flatpickr.min.css lib/flatpickr/ 2>/dev/null || true && cp node_modules/flatpickr/dist/l10n/zh.js lib/flatpickr/l10n/ 2>/dev/null || true"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "flatpickr": "^4.6.13",
+    "pdfjs-dist": "^4.0.379"
+  }
+}
