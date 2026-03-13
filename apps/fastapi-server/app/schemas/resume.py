@@ -39,4 +39,5 @@ class ResumeParseResponse(APIModel):
 class ResumeDetailResponse(APIModel):
     resume: ResumeItem
     textContent: Optional[str] = None
+    keywords: Optional[dict] = None  # 添加关键词字段
 

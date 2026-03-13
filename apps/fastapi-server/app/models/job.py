@@ -26,6 +26,7 @@ class Job(Base):
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid_str)
     title: Mapped[str] = mapped_column(String(255), index=True)
     company: Mapped[str] = mapped_column(String(255), index=True)
+    company_logo_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     job_type: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
     tags_json: Mapped[Optional[List[str]]] = mapped_column(JSON, nullable=True)
@@ -40,6 +41,13 @@ class Job(Base):
     raw_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     job_keywords_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     job_keywords_updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    
+    # Section-based matching fields
+    jd_sections_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    jd_sections_conf_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    jd_section_keywords_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    jd_embeddings_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    jd_sections_updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     source: Mapped[str] = mapped_column(String(50), index=True)
     source_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)

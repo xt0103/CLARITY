@@ -17,6 +17,7 @@ class JobDetail(APIModel):
     id: str
     title: str
     company: str
+    companyLogoUrl: Optional[str] = None
     location: Optional[str] = None
     jobType: Optional[str] = None
     tags: list[str] = []
@@ -32,14 +33,27 @@ class JobDetail(APIModel):
     isFavorite: Optional[bool] = None
 
 
+class SectionBreakdown(APIModel):
+    """Breakdown for a single JD section."""
+    sectionName: str
+    lexicalScore: Optional[int] = None
+    semanticScore: Optional[int] = None
+    sectionScore: Optional[int] = None
+    confidence: float
+    matchedKeywords: KeywordsJson = KeywordsJson()
+    missingKeywords: KeywordsJson = KeywordsJson()
+
+
 class JobMatchExplain(APIModel):
     matchScore: Optional[int] = None
     keywordScore: Optional[int] = None
     clusterScore: Optional[int] = None
+    semanticScore: Optional[int] = None  # Overall semantic score
     matchedClusters: list[str] = []
     matchedKeywordsByGroup: KeywordsJson = KeywordsJson()
     missingKeywordsByGroup: KeywordsJson = KeywordsJson()
     softMatchedKeywordsByGroup: Optional[KeywordsJson] = None
+    breakdown: Optional[dict[str, SectionBreakdown]] = None  # section_name -> breakdown
     note: Optional[str] = None
 
 
@@ -52,6 +66,7 @@ class JobListItem(APIModel):
     id: str
     title: str
     company: str
+    companyLogoUrl: Optional[str] = None
     location: Optional[str] = None
     descriptionText: str
     applyUrl: Optional[str] = None

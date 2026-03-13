@@ -10,7 +10,10 @@ from app.core.time import utcnow
 from app.ingest.connectors.greenhouse import fetch_jobs as fetch_greenhouse
 from app.ingest.connectors.lever import fetch_jobs as fetch_lever
 from app.ingest.types import NormalizedJob
+from app.ingest.company_logo import get_company_logo_url
 from app.nlp.keyword_extractor import extract_keywords
+from app.nlp.jd_segmenter import segment_jd
+from app.nlp.embeddings import generate_section_embeddings, embeddings_to_json
 from app.models.job import Job
 from app.models.job_source import JobSource
 import json
@@ -88,11 +91,53 @@ def upsert_jobs(db: Session, jobs: list[NormalizedJob]) -> int:
     for j in jobs:
         job_kws = extract_keywords(j.description_text or "")
         job_kws_json = json.dumps(job_kws, ensure_ascii=False)
+        
+        # Get company logo URL
+        company_logo_url = None
+        if j.company:
+            try:
+                company_logo_url = get_company_logo_url(j.company)
+            except Exception:
+                # Silently fail if logo fetch fails - not critical
+                pass
+        
+        # Segment JD and generate embeddings (if description changed or missing)
+        jd_sections_json = None
+        jd_sections_conf_json = None
+        jd_section_keywords_json = None
+        jd_embeddings_json = None
+        jd_sections_updated_at = None
+        
+        if j.description_text and j.description_text.strip():
+            try:
+                # Segment JD
+                segments_result = segment_jd(j.description_text)
+                jd_sections_json = json.dumps(segments_result["sections"], ensure_ascii=False)
+                jd_sections_conf_json = json.dumps(segments_result["confidence"], ensure_ascii=False)
+                
+                # Extract keywords for each section
+                section_keywords = {}
+                for section_name, section_text in segments_result["sections"].items():
+                    if section_text and section_text.strip():
+                        section_kws = extract_keywords(section_text)
+                        section_keywords[section_name] = section_kws
+                jd_section_keywords_json = json.dumps(section_keywords, ensure_ascii=False)
+                
+                # Generate embeddings for each section
+                section_embeddings = generate_section_embeddings(segments_result["sections"])
+                jd_embeddings_json = embeddings_to_json(section_embeddings)
+                
+                jd_sections_updated_at = now
+            except Exception as e:
+                # Silently fail - not critical for ingestion
+                pass
+        
         existing = db.scalar(select(Job).where(Job.source == j.source, Job.source_id == j.source_id))
         if existing is None:
             row = Job(
                 title=j.title,
                 company=j.company,
+                company_logo_url=company_logo_url,
                 location=j.location,
                 job_type=None,
                 tags_json=None,
@@ -105,6 +150,11 @@ def upsert_jobs(db: Session, jobs: list[NormalizedJob]) -> int:
                 raw_json=j.raw_json,
                 job_keywords_json=job_kws_json,
                 job_keywords_updated_at=now,
+                jd_sections_json=jd_sections_json,
+                jd_sections_conf_json=jd_sections_conf_json,
+                jd_section_keywords_json=jd_section_keywords_json,
+                jd_embeddings_json=jd_embeddings_json,
+                jd_sections_updated_at=jd_sections_updated_at,
                 source=j.source,
                 source_id=j.source_id,
                 created_at=now,
@@ -115,8 +165,18 @@ def upsert_jobs(db: Session, jobs: list[NormalizedJob]) -> int:
         else:
             existing.title = j.title
             existing.company = j.company
+            # Update logo URL if we got a new one (or if it was missing)
+            if company_logo_url and not existing.company_logo_url:
+                existing.company_logo_url = company_logo_url
             existing.location = j.location
-            existing.description_text = j.description_text
+            # Update sections/embeddings if description changed or missing
+            if j.description_text != existing.description_text or not existing.jd_sections_json:
+                existing.description_text = j.description_text
+                existing.jd_sections_json = jd_sections_json
+                existing.jd_sections_conf_json = jd_sections_conf_json
+                existing.jd_section_keywords_json = jd_section_keywords_json
+                existing.jd_embeddings_json = jd_embeddings_json
+                existing.jd_sections_updated_at = jd_sections_updated_at
             existing.apply_url = j.apply_url
             existing.posted_at = j.posted_at
             existing.raw_json = j.raw_json

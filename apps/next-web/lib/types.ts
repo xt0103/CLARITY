@@ -17,7 +17,7 @@ export type ResumeListResponse = { resumes: ResumeItem[] };
 export type ResumeCreateResponse = { resume: ResumeItem };
 export type ResumePatchResponse = { resume: ResumeItem; user: { defaultResumeId: string | null } };
 export type ResumeParseResponse = { resumeId: string; keywords: any; updatedAt: string };
-export type ResumeDetailResponse = { resume: ResumeItem; textContent?: string | null };
+export type ResumeDetailResponse = { resume: ResumeItem; textContent?: string | null; keywords?: any | null };
 
 export type MatchSearchRequest = {
   queryText: string;
@@ -46,6 +46,7 @@ export type JobDetailResponse = {
     id: string;
     title: string;
     company: string;
+    companyLogoUrl?: string | null;
     location?: string | null;
     jobType?: string | null;
     tags: string[];
@@ -100,6 +101,7 @@ export type JobListItem = {
   id: string;
   title: string;
   company: string;
+  companyLogoUrl?: string | null;
   location?: string | null;
   descriptionText: string;
   applyUrl?: string | null;

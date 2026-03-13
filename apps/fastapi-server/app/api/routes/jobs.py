@@ -13,6 +13,7 @@ from app.core.errors import ApiError
 from app.core.resume_text import extract_text_from_path_best_effort
 from app.core.time import to_iso_z, utcnow
 from app.match.match_engine import compute_match
+from app.match.match_engine_v2 import compute_match_v2, MatchResultV2
 from app.nlp.keyword_extractor import extract_keywords
 from app.nlp.skill_taxonomy import is_known_term
 from app.models.job import Job
@@ -21,7 +22,7 @@ from app.models.resume import Resume
 from app.models.resume_profile import ResumeProfile
 from app.models.user import User
 from app.models.unknown_term import UnknownTerm
-from app.schemas.job import JobDetail, JobDetailResponse, JobListItem, JobListResponse, JobMatchExplain, KeywordsJson
+from app.schemas.job import JobDetail, JobDetailResponse, JobListItem, JobListResponse, JobMatchExplain, KeywordsJson, SectionBreakdown
 
 
 router = APIRouter(tags=["jobs"])
@@ -83,6 +84,68 @@ def _record_unknown_terms(db: Session, *, terms: list[str]) -> None:
     except Exception:
         # never break main API path
         db.rollback()
+
+
+def _get_resume_profile_data(db: Session, *, user_id: str, resume_id: Optional[str]) -> Optional[dict]:
+    """
+    Get resume profile data including keywords, sections, and embeddings.
+    
+    Returns:
+        {
+            "keywords": dict,
+            "cv_sections_json": str or None,
+            "cv_sections_conf_json": str or None,
+            "cv_embeddings_json": str or None
+        } or None
+    """
+    if not resume_id:
+        return None
+    
+    prof = db.scalar(select(ResumeProfile).where(ResumeProfile.user_id == user_id, ResumeProfile.resume_id == resume_id))
+    if prof:
+        keywords = _parse_keywords_json(prof.keywords_json)
+        return {
+            "keywords": keywords,
+            "cv_sections_json": prof.cv_sections_json,
+            "cv_sections_conf_json": prof.cv_sections_conf_json,
+            "cv_embeddings_json": prof.cv_embeddings_json,
+        }
+    
+    # Fallback: extract from resume text (legacy path)
+    resume = db.scalar(select(Resume).where(Resume.id == resume_id, Resume.user_id == user_id, Resume.is_deleted == False))
+    if resume is None:
+        return None
+    
+    text = (resume.text_content or "").strip()
+    if (not text) and resume.storage_key:
+        upload_dir = Path(settings.UPLOAD_DIR)
+        extracted = extract_text_from_path_best_effort(filename=resume.file_name, path=upload_dir / resume.storage_key)
+        if extracted:
+            text = extracted[:100_000]
+            resume.text_content = text
+            db.add(resume)
+            db.commit()
+    
+    if not text:
+        return None
+    
+    kws = extract_keywords(text)
+    kws_json = json.dumps(kws, ensure_ascii=False)
+    
+    if prof is None:
+        db.add(ResumeProfile(user_id=user_id, resume_id=resume.id, parsed_text=text, keywords_json=kws_json, updated_at=utcnow()))
+    else:
+        prof.parsed_text = text
+        prof.keywords_json = kws_json
+        prof.updated_at = utcnow()
+    db.commit()
+    
+    return {
+        "keywords": kws,
+        "cv_sections_json": None,
+        "cv_sections_conf_json": None,
+        "cv_embeddings_json": None,
+    }
 
 
 def _get_resume_keywords_for_user(db: Session, *, user_id: str, resume_id: Optional[str]) -> Optional[dict]:
@@ -191,10 +254,12 @@ def list_jobs(
 
     # If withMatch=true, compute match using user's default resume keywords (if available).
     resume_id: Optional[str] = None
+    resume_profile_data = None
     if withMatch:
         user = db.scalar(select(User).where(User.id == user_id))
         resume_id = user.default_resume_id if user else None
-    resume_kws = _get_resume_keywords_for_user(db, user_id=user_id, resume_id=resume_id) if withMatch else None
+        resume_profile_data = _get_resume_profile_data(db, user_id=user_id, resume_id=resume_id) if resume_id else None
+    resume_kws = resume_profile_data["keywords"] if resume_profile_data else None
 
     # Get user's favorite job IDs
     favorite_job_ids = set(
@@ -207,6 +272,7 @@ def list_jobs(
             id=j.id,
             title=j.title,
             company=j.company,
+            companyLogoUrl=j.company_logo_url,
             location=j.location,
             descriptionText=j.description_text,
             applyUrl=j.apply_url or j.external_url,
@@ -227,15 +293,47 @@ def list_jobs(
                         all_terms.extend([str(x) for x in v])
                 _record_unknown_terms(db, terms=all_terms)
             item.jobKeywords = KeywordsJson(**job_kws) if isinstance(job_kws, dict) else None
-            m = compute_match(resume_keywords=resume_kws, job_keywords=job_kws)
+            
+            # Use enhanced matching with sections and embeddings
+            m = compute_match_v2(
+                resume_keywords=resume_kws,
+                job_keywords=job_kws,
+                jd_sections_json=j.jd_sections_json,
+                jd_sections_conf_json=j.jd_sections_conf_json,
+                jd_section_keywords_json=j.jd_section_keywords_json,
+                jd_embeddings_json=j.jd_embeddings_json,
+                cv_sections_json=resume_profile_data["cv_sections_json"] if resume_profile_data else None,
+                cv_sections_conf_json=resume_profile_data["cv_sections_conf_json"] if resume_profile_data else None,
+                cv_embeddings_json=resume_profile_data["cv_embeddings_json"] if resume_profile_data else None,
+            )
+            
+            # Convert breakdown to API format
+            breakdown_dict = None
+            if m.breakdown:
+                from app.schemas.job import SectionBreakdown
+                breakdown_dict = {
+                    section_name: SectionBreakdown(
+                        sectionName=bd.section_name,
+                        lexicalScore=bd.lexical_score,
+                        semanticScore=bd.semantic_score,
+                        sectionScore=bd.section_score,
+                        confidence=bd.confidence,
+                        matchedKeywords=KeywordsJson(**bd.matched_keywords),
+                        missingKeywords=KeywordsJson(**bd.missing_keywords),
+                    )
+                    for section_name, bd in m.breakdown.items()
+                }
+            
             item.match = JobMatchExplain(
                 matchScore=m.match_score,
                 keywordScore=m.keyword_score,
                 clusterScore=m.cluster_score,
+                semanticScore=m.semantic_score,
                 matchedClusters=m.matched_clusters,
-                matchedKeywordsByGroup=KeywordsJson(**m.matched_by_group),
-                missingKeywordsByGroup=KeywordsJson(**m.missing_by_group),
-                softMatchedKeywordsByGroup=KeywordsJson(**m.soft_matched_by_group),
+                matchedKeywordsByGroup=KeywordsJson(**m.matched_keywords_by_group),
+                missingKeywordsByGroup=KeywordsJson(**m.missing_keywords_by_group),
+                softMatchedKeywordsByGroup=KeywordsJson(**m.soft_matched_keywords_by_group),
+                breakdown=breakdown_dict,
                 note=m.note,
             )
         jobs.append(item)
@@ -261,8 +359,23 @@ def get_job(
     if rid is None:
         user = db.scalar(select(User).where(User.id == user_id))
         rid = user.default_resume_id if user else None
-    resume_kws = _get_resume_keywords_for_user(db, user_id=user_id, resume_id=rid) if withMatch else None
-    m = compute_match(resume_keywords=resume_kws, job_keywords=job_kws) if withMatch else None
+    
+    resume_profile_data = _get_resume_profile_data(db, user_id=user_id, resume_id=rid) if (withMatch and rid) else None
+    resume_kws = resume_profile_data["keywords"] if resume_profile_data else None
+    
+    m = None
+    if withMatch:
+        m = compute_match_v2(
+            resume_keywords=resume_kws,
+            job_keywords=job_kws,
+            jd_sections_json=job.jd_sections_json,
+            jd_sections_conf_json=job.jd_sections_conf_json,
+            jd_section_keywords_json=job.jd_section_keywords_json,
+            jd_embeddings_json=job.jd_embeddings_json,
+            cv_sections_json=resume_profile_data["cv_sections_json"] if resume_profile_data else None,
+            cv_sections_conf_json=resume_profile_data["cv_sections_conf_json"] if resume_profile_data else None,
+            cv_embeddings_json=resume_profile_data["cv_embeddings_json"] if resume_profile_data else None,
+        )
 
     # Check if job is favorited
     is_favorite = db.scalar(
@@ -274,6 +387,7 @@ def get_job(
             id=job.id,
             title=job.title,
             company=job.company,
+            companyLogoUrl=job.company_logo_url,
             location=job.location,
             jobType=job.job_type,
             tags=job.tags_json or [],
@@ -293,10 +407,23 @@ def get_job(
                 matchScore=m.match_score,
                 keywordScore=m.keyword_score,
                 clusterScore=m.cluster_score,
+                semanticScore=m.semantic_score,
                 matchedClusters=m.matched_clusters,
-                matchedKeywordsByGroup=KeywordsJson(**m.matched_by_group),
-                missingKeywordsByGroup=KeywordsJson(**m.missing_by_group),
-                softMatchedKeywordsByGroup=KeywordsJson(**m.soft_matched_by_group),
+                matchedKeywordsByGroup=KeywordsJson(**m.matched_keywords_by_group),
+                missingKeywordsByGroup=KeywordsJson(**m.missing_keywords_by_group),
+                softMatchedKeywordsByGroup=KeywordsJson(**m.soft_matched_keywords_by_group),
+                breakdown={
+                    section_name: SectionBreakdown(
+                        sectionName=bd.section_name,
+                        lexicalScore=bd.lexical_score,
+                        semanticScore=bd.semantic_score,
+                        sectionScore=bd.section_score,
+                        confidence=bd.confidence,
+                        matchedKeywords=KeywordsJson(**bd.matched_keywords),
+                        missingKeywords=KeywordsJson(**bd.missing_keywords),
+                    )
+                    for section_name, bd in (m.breakdown or {}).items()
+                } if m.breakdown else None,
                 note=m.note,
             )
             if m is not None

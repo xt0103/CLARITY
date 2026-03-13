@@ -10,6 +10,7 @@ import { api } from "@/lib/api";
 import { ApiError } from "@/lib/apiClient";
 import { assistantClient, type ChatResponse, type UIAction } from "@/lib/assistantClient";
 import type { JobListResponse } from "@/lib/types";
+import { CompanyLogo } from "@/lib/companyLogo";
 
 type SearchSession = {
   id: string;
@@ -642,7 +643,6 @@ export default function JobMatchPage() {
                 {jobsToRender.map((j) => {
                   const tags = pickTags(j);
                   const score = j.match?.matchScore ?? null;
-                  const logoLetter = (j.company || "?").trim().charAt(0).toUpperCase();
                   return (
                     <div
                       key={j.id}
@@ -655,22 +655,7 @@ export default function JobMatchPage() {
                       }}
                     >
                       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                        <div
-                          style={{
-                            width: 62,
-                            height: 62,
-                            borderRadius: 14,
-                            background: "#e2e8f0",
-                            display: "grid",
-                            placeItems: "center",
-                            fontWeight: 900,
-                            color: "#334155",
-                            flex: "0 0 auto"
-                          }}
-                          aria-label="company-logo"
-                        >
-                          {logoLetter}
-                        </div>
+                        <CompanyLogo companyName={j.company} logoUrl={j.companyLogoUrl} size={62} />
                         <div style={{ minWidth: 0, flex: "1 1 auto" }}>
                           <div style={{ fontWeight: 900, fontSize: 16, lineHeight: 1.2, marginBottom: 4 }}>
                             <Link href={`/jobs/${j.id}`} style={{ color: "#0b1220" }}>
@@ -1037,13 +1022,10 @@ export default function JobMatchPage() {
                   const match = typeof j.match?.matchScore === "number" ? j.match.matchScore : 0;
                   const success = Math.max(0, Math.min(100, Math.round(match * 0.9)));
                   const tags = pickTags(j);
-                  const logoLetter = (j.company || "?").trim().charAt(0).toUpperCase();
                   return (
                     <div key={j.id} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 18, padding: 16 }}>
                       <div style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 14, alignItems: "center" }}>
-                        <div style={{ width: 46, height: 46, borderRadius: 14, background: "#e2e8f0", display: "grid", placeItems: "center", fontWeight: 900 }}>
-                          {logoLetter}
-                        </div>
+                        <CompanyLogo companyName={j.company} logoUrl={j.companyLogoUrl} size={46} />
                         <div style={{ minWidth: 0 }}>
                           <div style={{ fontWeight: 900, fontSize: 18, lineHeight: 1.2 }}>
                             <Link href={`/jobs/${j.id}`} style={{ color: "#0f172a" }}>

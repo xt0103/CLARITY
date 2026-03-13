@@ -53,9 +53,9 @@ function StatusLegend({
                 {STATUS_COLORS[k].label}
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8, flex: "0 0 auto" }}>
-              <span style={{ fontSize: 12, fontWeight: 900 }}>{v}</span>
-              <span style={{ fontSize: 12, color: "#64748b" }}>{total ? `${pct(v, total)}%` : "0%"}</span>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, flex: "0 0 auto", justifyContent: "flex-end", minWidth: 60 }}>
+              <span style={{ fontSize: 12, fontWeight: 900, textAlign: "right", minWidth: 20 }}>{v}</span>
+              <span style={{ fontSize: 12, color: "#64748b", textAlign: "right", minWidth: 32 }}>{total ? `${pct(v, total)}%` : "0%"}</span>
             </div>
           </div>
         );
@@ -189,14 +189,33 @@ export default function DashboardPage() {
     queryFn: async () => api.dashboardMetrics()
   });
 
+  // 获取所有申请记录，用于在日历中标记申请日期
+  const applicationsQ = useQuery({
+    queryKey: ["applications", "all"],
+    queryFn: async () => api.listApplications(),
+    enabled: !!meQ.data
+  });
+
+  // 提取所有申请日期（格式：YYYY-MM-DD）
+  const appliedDates = useMemo(() => {
+    if (!applicationsQ.data?.applications) return new Set<string>();
+    return new Set(
+      applicationsQ.data.applications
+        .map((a) => a.dateApplied)
+        .filter((d): d is string => !!d)
+    );
+  }, [applicationsQ.data]);
+
   const [assistantText, setAssistantText] = useState("");
 
   const dailyQ = useQuery({
     queryKey: ["dailyMatches", meQ.data?.user.defaultResumeId || null],
     queryFn: async () => {
-      const rid = meQ.data?.user.defaultResumeId ?? null;
-      // Pull a larger candidate set, then pick the top 4 by matchScore in the UI.
-      const res = await api.matchSearch({ queryText: "software engineer", resumeId: rid, limit: 20 });
+      // 使用真实的岗位搜索API，获取带匹配度的岗位
+      const res = await api.searchJobs({ 
+        withMatch: true,  // 启用匹配度计算
+        limit: 20 
+      });
       return res.jobs;
     },
     enabled: !!meQ.data,
@@ -208,12 +227,13 @@ export default function DashboardPage() {
     return [...matchesRaw]
       .map((j, idx) => ({ j, idx }))
       .sort((a, b) => {
-        const av = typeof a.j.matchScore === "number" ? a.j.matchScore : -1;
-        const bv = typeof b.j.matchScore === "number" ? b.j.matchScore : -1;
+        // 按匹配度排序（matchScore高的在前）
+        const av = a.j.match?.matchScore ?? -1;
+        const bv = b.j.match?.matchScore ?? -1;
         if (bv !== av) return bv - av;
         return a.idx - b.idx;
       })
-      .slice(0, 4)
+      .slice(0, 4)  // 只取前4个
       .map((x) => x.j);
   }, [matchesRaw]);
 
@@ -224,9 +244,7 @@ export default function DashboardPage() {
   };
 
   const applyMut = useMutation({
-    mutationFn: async (job: MatchJobCard) => {
-      const ok = window.confirm("Did you apply? Click OK to confirm and add to Tracker.");
-      if (!ok) return null;
+    mutationFn: async (job: { jobId: string; title: string; company: string; location: string | null; externalUrl: string | null }) => {
       return api.createApplication({
         jobId: job.jobId,
         jobSnapshot: {
@@ -362,14 +380,14 @@ export default function DashboardPage() {
           }}
         >
           {/* Left column */}
-          <div style={{ display: "grid", gap: 16 }}>
+          <div style={{ display: "grid", gap: 8, alignSelf: "stretch" }}>
           <div
             style={{
               background: "linear-gradient(135deg, #0b1220, #0f172a)",
               color: "#fff",
               borderRadius: 14,
-              padding: 18,
-              minHeight: 170
+              padding: 14,
+              minHeight: 140
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -389,15 +407,15 @@ export default function DashboardPage() {
                 {avatarLetter}
               </div>
               <div>
-                <div style={{ fontSize: 26, fontWeight: 800 }}>
+                <div style={{ fontSize: 22, fontWeight: 800 }}>
                   Welcome Back, {displayName}!
                 </div>
-                <div style={{ opacity: 0.8, marginTop: 6 }}>{meQ.data?.user.email}</div>
+                <div style={{ opacity: 0.8, marginTop: 4, fontSize: 13 }}>{meQ.data?.user.email}</div>
               </div>
             </div>
-            <div style={{ opacity: 0.75, marginTop: 10 }}>Current summary job track report</div>
+            <div style={{ opacity: 0.75, marginTop: 8, fontSize: 13 }}>Current summary job track report</div>
 
-            <div style={{ marginTop: 18, background: "#ffffff", color: "#0f172a", borderRadius: 12, padding: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ marginTop: 12, background: "#ffffff", color: "#0f172a", borderRadius: 12, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <div style={{ width: 46, height: 46, borderRadius: 999, border: "6px solid #2563eb" }} />
                 <div>
@@ -411,10 +429,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 16 }}>
-            <div style={{ fontWeight: 800, marginBottom: 10 }}>Calendar</div>
+          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 14 }}>
+            <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 14 }}>Calendar</div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <div style={{ fontWeight: 900, fontSize: 18, color: "#1d4ed8" }}>{monthLabel}</div>
+              <div style={{ fontWeight: 900, fontSize: 16, color: "#1d4ed8" }}>{monthLabel}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <button
                   onClick={() => {
@@ -444,9 +462,9 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
-            <div style={{ color: "#64748b", fontSize: 12, marginTop: 6 }}>{selectedLabel}</div>
+            <div style={{ color: "#64748b", fontSize: 11, marginTop: 4 }}>{selectedLabel}</div>
 
-            <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10 }}>
+            <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
               {["S", "M", "T", "W", "T", "F", "S"].map((d, idx) => (
                 <div key={`dow-${idx}`} style={{ fontSize: 11, color: "#64748b", textAlign: "center", fontWeight: 800 }}>
                   {d}
@@ -455,6 +473,14 @@ export default function DashboardPage() {
               {cal.cells.map((c, idx) => {
                 const isToday = c.day != null && calYear === today.getFullYear() && calMonth === today.getMonth() && c.day === today.getDate();
                 const isSelected = c.day != null && c.day === selectedDay;
+                
+                // 检查这个日期是否有申请记录
+                let hasApplication = false;
+                if (c.day != null) {
+                  const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(c.day).padStart(2, "0")}`;
+                  hasApplication = appliedDates.has(dateStr);
+                }
+                
                 return (
                   <button
                     key={`cal-${idx}`}
@@ -462,7 +488,7 @@ export default function DashboardPage() {
                       if (c.day != null) setSelectedDay(c.day);
                     }}
                     style={{
-                      height: 38,
+                      height: 32,
                       borderRadius: 999,
                       border: isSelected ? "1px solid #2563eb" : "1px solid transparent",
                       background: isSelected ? "#dbeafe" : isToday ? "#2563eb" : "#fff",
@@ -471,12 +497,27 @@ export default function DashboardPage() {
                       placeItems: "center",
                       fontWeight: isToday || isSelected ? 900 : 700,
                       opacity: c.day == null ? 0 : 1,
-                      cursor: c.day == null ? "default" : "pointer"
+                      cursor: c.day == null ? "default" : "pointer",
+                      position: "relative"
                     }}
-                    aria-label={c.day == null ? "empty" : `day-${c.day}`}
+                    aria-label={c.day == null ? "empty" : `day-${c.day}${hasApplication ? " (has application)" : ""}`}
                     disabled={c.day == null}
+                    title={hasApplication ? `Applied on ${c.day}` : undefined}
                   >
                     {c.day ?? ""}
+                    {hasApplication && (
+                      <span
+                        style={{
+                          position: "absolute",
+                          bottom: 2,
+                          width: 4,
+                          height: 4,
+                          borderRadius: 999,
+                          background: isToday ? "#fff" : "#2563eb",
+                          display: "block"
+                        }}
+                      />
+                    )}
                   </button>
                 );
               })}
@@ -484,14 +525,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Subscription (moved to left-bottom blank area) */}
-          <div style={{ background: "#2563eb", color: "#fff", borderRadius: 14, padding: 16 }}>
+          <div style={{ background: "#2563eb", color: "#fff", borderRadius: 14, padding: 14, alignSelf: "end", marginTop: "-6px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-              <div style={{ fontWeight: 900 }}>Subscription Status</div>
-              <div style={{ background: "rgba(15,23,42,0.55)", padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 900 }}>
+              <div style={{ fontWeight: 900, fontSize: 15 }}>Subscription Status</div>
+              <div style={{ background: "rgba(15,23,42,0.55)", padding: "4px 10px", borderRadius: 999, fontSize: 11, fontWeight: 900 }}>
                 Free Plan
               </div>
             </div>
-            <ul style={{ marginTop: 12, marginBottom: 0, paddingLeft: 18, opacity: 0.95, lineHeight: 1.6 }}>
+            <ul style={{ marginTop: 10, marginBottom: 0, paddingLeft: 18, opacity: 0.95, lineHeight: 1.5, fontSize: 13 }}>
               <li>5 AI job matches per day</li>
               <li>Basic analytics</li>
               <li>Standard support</li>
@@ -499,13 +540,14 @@ export default function DashboardPage() {
             <button
               onClick={() => window.alert("Upgrade (coming soon)")}
               style={{
-                marginTop: 12,
-                padding: "10px 12px",
+                marginTop: 10,
+                padding: "8px 12px",
                 borderRadius: 999,
                 border: 0,
                 background: "#ffffff",
                 color: "#1d4ed8",
-                fontWeight: 900
+                fontWeight: 900,
+                fontSize: 13
               }}
             >
               Upgrade to Pro
@@ -586,8 +628,8 @@ export default function DashboardPage() {
                 style={{
                   marginTop: 12,
                   display: "grid",
-                  gridTemplateColumns: "minmax(320px, 1fr) minmax(300px, 380px)",
-                  gap: 14,
+                  gridTemplateColumns: "minmax(320px, 1fr) minmax(280px, 340px)",
+                  gap: 16,
                   alignItems: "center"
                 }}
               >
@@ -723,11 +765,11 @@ export default function DashboardPage() {
                 </div>
                 <div
                   style={{
-                    justifySelf: "end",
+                    justifySelf: "center",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "flex-end",
-                    gap: 16,
+                    justifyContent: "center",
+                    gap: 12,
                     flexWrap: "wrap"
                   }}
                 >
@@ -757,7 +799,7 @@ export default function DashboardPage() {
                 marginTop: 12,
                 display: "grid",
                 gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-                gap: 12
+                gap: 10
               }}
             >
               {[
@@ -774,12 +816,14 @@ export default function DashboardPage() {
                     padding: 12,
                     background: "#fff",
                     display: "grid",
-                    gap: 10
+                    gap: 10,
+                    minWidth: 0,
+                    maxWidth: "100%"
                   }}
                 >
-                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <img src={t.icon} alt="" width={48} height={48} style={{ width: 48, height: 48, display: "block" }} />
-                    <div style={{ fontWeight: 900, fontSize: 14, lineHeight: 1.2 }}>{t.title}</div>
+                  <div style={{ display: "flex", gap: 8, alignItems: "flex-start", minWidth: 0 }}>
+                    <img src={t.icon} alt="" width={40} height={40} style={{ width: 40, height: 40, display: "block", flexShrink: 0 }} />
+                    <div style={{ fontWeight: 900, fontSize: 12, lineHeight: 1.4, wordBreak: "normal", overflowWrap: "break-word", flex: 1, minWidth: 0 }}>{t.title}</div>
                   </div>
                   <button
                     onClick={() => window.location.assign("/ai-tools")}
@@ -802,7 +846,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Right column */}
-          <div style={{ display: "grid", gap: 16 }}>
+          <div style={{ display: "grid", gap: 16, alignSelf: "stretch" }}>
           <div style={{ background: "#f1f5ff", borderRadius: 14, border: "1px solid #dbeafe", padding: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ fontWeight: 900, fontSize: 18 }}>Daily Job Matches</div>
@@ -817,43 +861,70 @@ export default function DashboardPage() {
             )}
 
             <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-              {matches.map((j) => (
-                <div key={j.jobId} style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 12 }}>
-                  <div style={{ fontWeight: 900 }}>{j.title}</div>
-                  <div style={{ color: "#64748b", fontSize: 13 }}>{j.company}</div>
-                  <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>{j.location || "—"}</div>
-                  <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {(j.tags || []).slice(0, 3).map((t) => (
-                      <span key={t} style={{ fontSize: 12, background: "#f1f5f9", padding: "2px 8px", borderRadius: 999 }}>
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 999, background: "#dcfce7", display: "grid", placeItems: "center", color: "#166534", fontWeight: 900 }}>
-                        {Math.max(0, Math.min(99, j.matchScore))}
+              {matches.map((j) => {
+                // 从jobKeywords中提取关键词显示
+                const keywords: string[] = [];
+                if (j.jobKeywords) {
+                  keywords.push(...(j.jobKeywords.skills || []).slice(0, 2));
+                  keywords.push(...(j.jobKeywords.tools || []).slice(0, 1));
+                }
+                const matchScore = j.match?.matchScore ?? null;
+                
+                return (
+                  <div key={j.id} style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 12 }}>
+                    <div style={{ fontWeight: 900 }}>{j.title}</div>
+                    <div style={{ color: "#64748b", fontSize: 13 }}>{j.company}</div>
+                    <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>{j.location || "—"}</div>
+                    {keywords.length > 0 && (
+                      <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                        {keywords.slice(0, 3).map((t) => (
+                          <span key={t} style={{ fontSize: 12, background: "#f1f5f9", padding: "2px 8px", borderRadius: 999 }}>
+                            {t}
+                          </span>
+                        ))}
                       </div>
-                      <div style={{ color: "#64748b", fontSize: 12 }}>match</div>
-                    </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <Link href={`/jobs/${j.jobId}`} style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#fff", fontWeight: 800 }}>
-                        View
-                      </Link>
-                      <button
-                        onClick={() => {
-                          if (j.externalUrl) window.open(j.externalUrl, "_blank", "noopener,noreferrer");
-                          applyMut.mutate(j);
-                        }}
-                        disabled={applyMut.isPending}
-                        style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #0f172a", background: "#0f172a", color: "#fff", fontWeight: 800 }}
-                      >
-                        Apply
-                      </button>
+                    )}
+                    <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+                      {matchScore !== null ? (
+                        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                          <div style={{ width: 32, height: 32, borderRadius: 999, background: "#dcfce7", display: "grid", placeItems: "center", color: "#166534", fontWeight: 900 }}>
+                            {Math.max(0, Math.min(99, matchScore))}
+                          </div>
+                          <div style={{ color: "#64748b", fontSize: 12 }}>match</div>
+                        </div>
+                      ) : (
+                        <div style={{ color: "#64748b", fontSize: 12 }}>No match data</div>
+                      )}
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <Link href={`/jobs/${j.id}`} style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#fff", fontWeight: 800, fontSize: 12 }}>
+                          View
+                        </Link>
+                        <button
+                          onClick={() => {
+                            if (j.applyUrl) {
+                              window.open(j.applyUrl, "_blank", "noopener,noreferrer");
+                            }
+                            // 创建申请记录
+                            const ok = window.confirm("Did you apply? Click OK to confirm and add to Tracker.");
+                            if (!ok) return;
+                            applyMut.mutate({
+                              jobId: j.id,
+                              title: j.title,
+                              company: j.company,
+                              location: j.location || null,
+                              externalUrl: j.applyUrl || null
+                            });
+                          }}
+                          disabled={applyMut.isPending}
+                          style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #0f172a", background: "#0f172a", color: "#fff", fontWeight: 800, fontSize: 12 }}
+                        >
+                          Apply
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {applyMut.error && (

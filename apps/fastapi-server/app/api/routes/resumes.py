@@ -16,6 +16,8 @@ from app.models.resume import Resume
 from app.models.resume_profile import ResumeProfile
 from app.models.user import User
 from app.nlp.keyword_extractor import extract_keywords
+from app.nlp.cv_segmenter import segment_cv
+from app.nlp.embeddings import generate_section_embeddings, embeddings_to_json
 from app.schemas.resume import (
     ResumeCreateResponse,
     ResumeDetailResponse,
@@ -25,6 +27,7 @@ from app.schemas.resume import (
     ResumePatchRequest,
     ResumePatchResponse,
 )
+from app.api.routes.jobs import _parse_keywords_json
 
 
 router = APIRouter(tags=["resumes"])
@@ -80,9 +83,29 @@ async def upload_resume(
     db.commit()
     db.refresh(resume)
 
-    # Auto-generate resume keywords (MVP) when we have extracted text.
+    # Auto-generate resume keywords, segments, and embeddings when we have extracted text.
     if extracted and extracted.strip():
         kws = extract_keywords(extracted)
+        
+        # Segment CV and generate embeddings
+        cv_sections_json = None
+        cv_sections_conf_json = None
+        cv_embeddings_json = None
+        cv_sections_updated_at = None
+        
+        try:
+            segments_result = segment_cv(extracted, sections_json=None)
+            cv_sections_json = json.dumps(segments_result["sections"], ensure_ascii=False)
+            cv_sections_conf_json = json.dumps(segments_result["confidence"], ensure_ascii=False)
+            
+            section_embeddings = generate_section_embeddings(segments_result["sections"])
+            cv_embeddings_json = embeddings_to_json(section_embeddings)
+            
+            cv_sections_updated_at = utcnow()
+        except Exception:
+            # Silently fail - not critical
+            pass
+        
         existing_profile = db.scalar(select(ResumeProfile).where(ResumeProfile.resume_id == resume.id))
         if existing_profile is None:
             db.add(
@@ -91,12 +114,22 @@ async def upload_resume(
                     resume_id=resume.id,
                     parsed_text=extracted,
                     keywords_json=json.dumps(kws, ensure_ascii=False),
+                    cv_sections_json=cv_sections_json,
+                    cv_sections_conf_json=cv_sections_conf_json,
+                    cv_embeddings_json=cv_embeddings_json,
+                    cv_sections_updated_at=cv_sections_updated_at,
                     updated_at=utcnow(),
                 )
             )
         else:
             existing_profile.parsed_text = extracted
             existing_profile.keywords_json = json.dumps(kws, ensure_ascii=False)
+            # Update sections/embeddings if text changed or missing
+            if extracted != existing_profile.parsed_text or not existing_profile.cv_sections_json:
+                existing_profile.cv_sections_json = cv_sections_json
+                existing_profile.cv_sections_conf_json = cv_sections_conf_json
+                existing_profile.cv_embeddings_json = cv_embeddings_json
+                existing_profile.cv_sections_updated_at = cv_sections_updated_at
             existing_profile.updated_at = utcnow()
         db.commit()
 
@@ -143,6 +176,27 @@ def parse_resume(
         raise ApiError(status_code=422, code="VALIDATION_ERROR", message="Resume text is empty or could not be extracted")
 
     kws = extract_keywords(text)
+    
+    # Segment CV and generate embeddings
+    cv_sections_json = None
+    cv_sections_conf_json = None
+    cv_embeddings_json = None
+    cv_sections_updated_at = None
+    
+    try:
+        segments_result = segment_cv(text, sections_json=None)  # Could use profile.cv_sections_json if exists
+        cv_sections_json = json.dumps(segments_result["sections"], ensure_ascii=False)
+        cv_sections_conf_json = json.dumps(segments_result["confidence"], ensure_ascii=False)
+        
+        # Generate embeddings for each section
+        section_embeddings = generate_section_embeddings(segments_result["sections"])
+        cv_embeddings_json = embeddings_to_json(section_embeddings)
+        
+        cv_sections_updated_at = utcnow()
+    except Exception:
+        # Silently fail - not critical
+        pass
+    
     profile = db.scalar(select(ResumeProfile).where(ResumeProfile.resume_id == resume.id))
     if profile is None:
         profile = ResumeProfile(
@@ -249,6 +303,12 @@ def get_resume_detail(
     user = db.scalar(select(User).where(User.id == user_id))
     is_default = user is not None and user.default_resume_id == resume.id
 
+    # 获取关键词（如果已解析）
+    keywords = None
+    profile = db.scalar(select(ResumeProfile).where(ResumeProfile.resume_id == resume.id))
+    if profile and profile.keywords_json:
+        keywords = _parse_keywords_json(profile.keywords_json)
+
     return ResumeDetailResponse(
         resume=ResumeItem(
             id=resume.id,
@@ -257,6 +317,7 @@ def get_resume_detail(
             isDefault=is_default,
         ),
         textContent=text_content,
+        keywords=keywords,
     )
 
 

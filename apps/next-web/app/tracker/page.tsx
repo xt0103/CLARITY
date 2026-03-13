@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import type { ApplicationStatus, PlatformSource, Priority } from "@/lib/types";
 import { ApiError } from "@/lib/apiClient";
+import { CompanyLogo } from "@/lib/companyLogo";
 
 function _statusLabel(status: ApplicationStatus): string {
   switch (status) {
@@ -157,7 +158,7 @@ export default function TrackerPage() {
     { status: "INTERVIEW", title: "Interview", subtitle: "Interview scheduled", bg: "#f5f3ff", dot: "#7c3aed", count: counts.INTERVIEW },
     { status: "OFFER", title: "Offer", subtitle: "Offers received", bg: "#f0fdf4", dot: "#22c55e", count: counts.OFFER },
     { status: "REJECTED", title: "Rejected", subtitle: "Not selected", bg: "#f1f5f9", dot: "#0b1220", count: counts.REJECTED },
-    { status: "FAVORITES", title: "已收藏", subtitle: "Favorited jobs", bg: "#fef3c7", dot: "#f59e0b", count: favoriteCount }
+    { status: "FAVORITES", title: "Favorites", subtitle: "Favorited jobs", bg: "#fef3c7", dot: "#f59e0b", count: favoriteCount }
   ];
 
   return (
@@ -244,7 +245,6 @@ export default function TrackerPage() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))", gap: 16 }}>
                 {favoritesQ.data.jobs.map((j) => {
                   const score = j.match?.matchScore ?? null;
-                  const logoLetter = (j.company || "?").trim().charAt(0).toUpperCase();
                   const tags = [
                     ...(j.jobKeywords?.skills || []).slice(0, 3),
                     ...(j.jobKeywords?.tools || []).slice(0, 2)
@@ -260,22 +260,7 @@ export default function TrackerPage() {
                       }}
                     >
                       <div style={{ display: "flex", gap: 12, alignItems: "start" }}>
-                        <div
-                          style={{
-                            width: 62,
-                            height: 62,
-                            borderRadius: 14,
-                            background: "#e2e8f0",
-                            display: "grid",
-                            placeItems: "center",
-                            fontWeight: 900,
-                            color: "#334155",
-                            flex: "0 0 auto"
-                          }}
-                          aria-label="company-logo"
-                        >
-                          {logoLetter}
-                        </div>
+                        <CompanyLogo companyName={j.company} logoUrl={j.companyLogoUrl} size={62} />
                         <div style={{ minWidth: 0, flex: "1 1 auto" }}>
                           <div style={{ fontWeight: 900, fontSize: 16, lineHeight: 1.2, marginBottom: 4 }}>
                             <Link href={`/jobs/${j.id}`} style={{ color: "#0b1220" }}>

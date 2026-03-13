@@ -18,3 +18,4 @@ apps/next-web/.env.local
 # Uploads (local)
 apps/fastapi-server/uploads/
 
+*.db

@@ -28,6 +28,12 @@ class ResumeProfile(Base):
 
     parsed_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     keywords_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    
+    # Section-based matching fields
+    cv_sections_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    cv_sections_conf_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    cv_embeddings_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    cv_sections_updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=_utcnow, onupdate=_utcnow)
 

@@ -125,6 +125,18 @@ export default function ResumePage() {
     enabled: !!selectedResumeId
   });
 
+  // 自动显示关键词（如果详情中有）
+  useEffect(() => {
+    if (detailQ.data?.keywords && !parsed) {
+      // 如果有关键词但还没有显示，自动设置
+      setParsed({
+        resumeId: selectedResumeId || "",
+        keywords: detailQ.data.keywords,
+        updatedAt: new Date().toISOString()
+      });
+    }
+  }, [detailQ.data?.keywords, selectedResumeId, parsed]);
+
   useEffect(() => {
     setDraft(getResumeDraft());
     setUseDraft(getUseResumeDraftForMatching());

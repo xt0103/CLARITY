@@ -205,6 +205,7 @@ def execute_search_jobs(
             "id": j.id,
             "title": j.title,
             "company": j.company,
+            "companyLogoUrl": j.company_logo_url,
             "location": j.location,
             "descriptionText": j.description_text[:500] if j.description_text else "",  # Truncate for list
             "applyUrl": j.apply_url or j.external_url,
@@ -273,6 +274,7 @@ def execute_get_job_detail(
         "id": job.id,
         "title": job.title,
         "company": job.company,
+        "companyLogoUrl": job.company_logo_url,
         "location": job.location,
         "jobType": job.job_type,
         "tags": job.tags_json or [],
