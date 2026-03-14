@@ -17,7 +17,7 @@ export type ResumeListResponse = { resumes: ResumeItem[] };
 export type ResumeCreateResponse = { resume: ResumeItem };
 export type ResumePatchResponse = { resume: ResumeItem; user: { defaultResumeId: string | null } };
 export type ResumeParseResponse = { resumeId: string; keywords: any; updatedAt: string };
-export type ResumeDetailResponse = { resume: ResumeItem; textContent?: string | null; keywords?: any | null };
+export type ResumeDetailResponse = { resume: ResumeItem; textContent?: string | null };
 
 export type MatchSearchRequest = {
   queryText: string;
@@ -57,6 +57,7 @@ export type JobDetailResponse = {
     source: string;
     sourceId?: string | null;
     isActive?: boolean | null;
+    isFavorite?: boolean | null;
     jobKeywords?: {
       skills: string[];
       tools: string[];
@@ -65,7 +66,6 @@ export type JobDetailResponse = {
       methods: string[];
     } | null;
     createdAt: string;
-    isFavorite?: boolean | null;
   };
   match?: {
     matchScore?: number | null;
@@ -109,6 +109,7 @@ export type JobListItem = {
   source: string;
   sourceId?: string | null;
   isActive: boolean;
+  isFavorite?: boolean | null;
   jobKeywords?: {
     skills: string[];
     tools: string[];
@@ -144,7 +145,6 @@ export type JobListItem = {
     } | null;
     note?: string | null;
   } | null;
-  isFavorite?: boolean | null;
 };
 
 export type JobListResponse = {
@@ -174,7 +174,6 @@ export type ApplicationItem = {
   dateApplied: string;
   status: ApplicationStatus;
   priority?: Priority | null;
-  isFavorite?: boolean | null;
   notes?: string | null;
   createdAt: string;
   updatedAt: string;

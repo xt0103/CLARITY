@@ -3,7 +3,6 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { api } from "@/lib/api";
@@ -53,9 +52,9 @@ function StatusLegend({
                 {STATUS_COLORS[k].label}
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8, flex: "0 0 auto", justifyContent: "flex-end", minWidth: 60 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, flex: "0 0 auto", minWidth: 60, justifyContent: "flex-end" }}>
               <span style={{ fontSize: 12, fontWeight: 900, textAlign: "right", minWidth: 20 }}>{v}</span>
-              <span style={{ fontSize: 12, color: "#64748b", textAlign: "right", minWidth: 32 }}>{total ? `${pct(v, total)}%` : "0%"}</span>
+              <span style={{ fontSize: 12, color: "#64748b", textAlign: "right", minWidth: 35 }}>{total ? `${pct(v, total)}%` : "0%"}</span>
             </div>
           </div>
         );
@@ -66,12 +65,10 @@ function StatusLegend({
 
 function StatusPie({
   breakdown,
-  showLegend = true,
-  onClick
+  showLegend = true
 }: {
   breakdown: Partial<Record<ApplicationStatus, number>>;
   showLegend?: boolean;
-  onClick?: () => void;
 }) {
   const order: ApplicationStatus[] = ["APPLIED", "UNDER_REVIEW", "INTERVIEW", "OFFER", "REJECTED"];
   const total = order.reduce((s, k) => s + (breakdown[k] ?? 0), 0);
@@ -107,14 +104,7 @@ function StatusPie({
 
   return (
     <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "nowrap" }}>
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        aria-label="application-status-pie"
-        style={{ position: "relative", flexShrink: 0, cursor: onClick ? "pointer" : "default" }}
-        onClick={onClick}
-      >
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-label="application-status-pie" style={{ position: "relative", flexShrink: 0 }}>
         <g transform={`rotate(-90 ${center} ${center})`}>
           {/* background ring */}
           <circle cx={center} cy={center} r={r} fill="transparent" stroke="#e2e8f0" strokeWidth={strokeW} />
@@ -172,7 +162,6 @@ function StatusPie({
 }
 
 export default function DashboardPage() {
-  const router = useRouter();
   const qc = useQueryClient();
   const meQ = useQuery({
     queryKey: ["me"],
@@ -189,33 +178,15 @@ export default function DashboardPage() {
     queryFn: async () => api.dashboardMetrics()
   });
 
-  // 获取所有申请记录，用于在日历中标记申请日期
-  const applicationsQ = useQuery({
-    queryKey: ["applications", "all"],
-    queryFn: async () => api.listApplications(),
-    enabled: !!meQ.data
-  });
-
-  // 提取所有申请日期（格式：YYYY-MM-DD）
-  const appliedDates = useMemo(() => {
-    if (!applicationsQ.data?.applications) return new Set<string>();
-    return new Set(
-      applicationsQ.data.applications
-        .map((a) => a.dateApplied)
-        .filter((d): d is string => !!d)
-    );
-  }, [applicationsQ.data]);
-
   const [assistantText, setAssistantText] = useState("");
+  const [jobSearchRes, setJobSearchRes] = useState<JobListResponse | null>(null);
 
   const dailyQ = useQuery({
     queryKey: ["dailyMatches", meQ.data?.user.defaultResumeId || null],
     queryFn: async () => {
-      // 使用真实的岗位搜索API，获取带匹配度的岗位
-      const res = await api.searchJobs({ 
-        withMatch: true,  // 启用匹配度计算
-        limit: 20 
-      });
+      const rid = meQ.data?.user.defaultResumeId ?? null;
+      // Pull a larger candidate set, then pick the top 4 by matchScore in the UI.
+      const res = await api.matchSearch({ queryText: "software engineer", resumeId: rid, limit: 20 });
       return res.jobs;
     },
     enabled: !!meQ.data,
@@ -227,24 +198,29 @@ export default function DashboardPage() {
     return [...matchesRaw]
       .map((j, idx) => ({ j, idx }))
       .sort((a, b) => {
-        // 按匹配度排序（matchScore高的在前）
-        const av = a.j.match?.matchScore ?? -1;
-        const bv = b.j.match?.matchScore ?? -1;
+        const av = typeof a.j.matchScore === "number" ? a.j.matchScore : -1;
+        const bv = typeof b.j.matchScore === "number" ? b.j.matchScore : -1;
         if (bv !== av) return bv - av;
         return a.idx - b.idx;
       })
-      .slice(0, 4)  // 只取前4个
+      .slice(0, 4)
       .map((x) => x.j);
   }, [matchesRaw]);
 
-  const handleSearch = () => {
-    if (assistantText.trim()) {
-      router.push(`/job-match?query=${encodeURIComponent(assistantText.trim())}`);
-    }
-  };
+  const searchMut = useMutation({
+    mutationFn: async () =>
+      api.searchJobs({
+        query: assistantText.trim(),
+        limit: 6,
+        offset: 0
+      }),
+    onSuccess: (res) => setJobSearchRes(res)
+  });
 
   const applyMut = useMutation({
-    mutationFn: async (job: { jobId: string; title: string; company: string; location: string | null; externalUrl: string | null }) => {
+    mutationFn: async (job: MatchJobCard) => {
+      const ok = window.confirm("Did you apply? Click OK to confirm and add to Tracker.");
+      if (!ok) return null;
       return api.createApplication({
         jobId: job.jobId,
         jobSnapshot: {
@@ -380,21 +356,21 @@ export default function DashboardPage() {
           }}
         >
           {/* Left column */}
-          <div style={{ display: "grid", gap: 8, alignSelf: "stretch" }}>
+          <div style={{ display: "grid", gap: 14 }}>
           <div
             style={{
               background: "linear-gradient(135deg, #0b1220, #0f172a)",
               color: "#fff",
               borderRadius: 14,
-              padding: 14,
-              minHeight: 140
+              padding: 16,
+              minHeight: 160
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div
                 style={{
-                  width: 44,
-                  height: 44,
+                  width: 42,
+                  height: 42,
                   borderRadius: 999,
                   background: "#1d4ed8",
                   display: "grid",
@@ -407,32 +383,32 @@ export default function DashboardPage() {
                 {avatarLetter}
               </div>
               <div>
-                <div style={{ fontSize: 22, fontWeight: 800 }}>
+                <div style={{ fontSize: 24, fontWeight: 800 }}>
                   Welcome Back, {displayName}!
                 </div>
-                <div style={{ opacity: 0.8, marginTop: 4, fontSize: 13 }}>{meQ.data?.user.email}</div>
+                <div style={{ opacity: 0.8, marginTop: 5, fontSize: 13 }}>{meQ.data?.user.email}</div>
               </div>
             </div>
-            <div style={{ opacity: 0.75, marginTop: 8, fontSize: 13 }}>Current summary job track report</div>
+            <div style={{ opacity: 0.75, marginTop: 10, fontSize: 13 }}>Current summary job track report</div>
 
-            <div style={{ marginTop: 12, background: "#ffffff", color: "#0f172a", borderRadius: 12, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 46, height: 46, borderRadius: 999, border: "6px solid #2563eb" }} />
+            <div style={{ marginTop: 14, background: "#ffffff", color: "#0f172a", borderRadius: 12, padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 42, height: 42, borderRadius: 999, border: "5px solid #2563eb" }} />
                 <div>
                   <div style={{ fontSize: 12, color: "#64748b" }}>{completionPct}%</div>
-                  <div style={{ fontWeight: 700 }}>Profile Completion</div>
+                  <div style={{ fontWeight: 700, fontSize: 13 }}>Profile Completion</div>
                 </div>
               </div>
-              <Link href="/resume" style={{ color: "#2563eb", fontWeight: 700 }}>
+              <Link href="/resume" style={{ color: "#2563eb", fontWeight: 700, fontSize: 13 }}>
                 Complete Profile →
               </Link>
             </div>
           </div>
 
           <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 14 }}>
-            <div style={{ fontWeight: 800, marginBottom: 8, fontSize: 14 }}>Calendar</div>
+            <div style={{ fontWeight: 800, marginBottom: 10, fontSize: 15 }}>Calendar</div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <div style={{ fontWeight: 900, fontSize: 16, color: "#1d4ed8" }}>{monthLabel}</div>
+              <div style={{ fontWeight: 900, fontSize: 17, color: "#1d4ed8" }}>{monthLabel}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <button
                   onClick={() => {
@@ -442,7 +418,7 @@ export default function DashboardPage() {
                       setCalYear((y) => y - 1);
                     } else setCalMonth(m);
                   }}
-                  style={{ width: 34, height: 34, borderRadius: 999, border: "1px solid #e2e8f0", background: "#fff", fontWeight: 900 }}
+                  style={{ width: 32, height: 32, borderRadius: 999, border: "1px solid #e2e8f0", background: "#fff", fontWeight: 900 }}
                   aria-label="prev-month"
                 >
                   ‹
@@ -455,32 +431,24 @@ export default function DashboardPage() {
                       setCalYear((y) => y + 1);
                     } else setCalMonth(m);
                   }}
-                  style={{ width: 34, height: 34, borderRadius: 999, border: "1px solid #e2e8f0", background: "#fff", fontWeight: 900 }}
+                  style={{ width: 32, height: 32, borderRadius: 999, border: "1px solid #e2e8f0", background: "#fff", fontWeight: 900 }}
                   aria-label="next-month"
                 >
                   ›
                 </button>
               </div>
             </div>
-            <div style={{ color: "#64748b", fontSize: 11, marginTop: 4 }}>{selectedLabel}</div>
+            <div style={{ color: "#64748b", fontSize: 11, marginTop: 5 }}>{selectedLabel}</div>
 
             <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
               {["S", "M", "T", "W", "T", "F", "S"].map((d, idx) => (
-                <div key={`dow-${idx}`} style={{ fontSize: 11, color: "#64748b", textAlign: "center", fontWeight: 800 }}>
+                <div key={`dow-${idx}`} style={{ fontSize: 10, color: "#64748b", textAlign: "center", fontWeight: 800 }}>
                   {d}
                 </div>
               ))}
               {cal.cells.map((c, idx) => {
                 const isToday = c.day != null && calYear === today.getFullYear() && calMonth === today.getMonth() && c.day === today.getDate();
                 const isSelected = c.day != null && c.day === selectedDay;
-                
-                // 检查这个日期是否有申请记录
-                let hasApplication = false;
-                if (c.day != null) {
-                  const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(c.day).padStart(2, "0")}`;
-                  hasApplication = appliedDates.has(dateStr);
-                }
-                
                 return (
                   <button
                     key={`cal-${idx}`}
@@ -498,26 +466,12 @@ export default function DashboardPage() {
                       fontWeight: isToday || isSelected ? 900 : 700,
                       opacity: c.day == null ? 0 : 1,
                       cursor: c.day == null ? "default" : "pointer",
-                      position: "relative"
+                      fontSize: 12
                     }}
-                    aria-label={c.day == null ? "empty" : `day-${c.day}${hasApplication ? " (has application)" : ""}`}
+                    aria-label={c.day == null ? "empty" : `day-${c.day}`}
                     disabled={c.day == null}
-                    title={hasApplication ? `Applied on ${c.day}` : undefined}
                   >
                     {c.day ?? ""}
-                    {hasApplication && (
-                      <span
-                        style={{
-                          position: "absolute",
-                          bottom: 2,
-                          width: 4,
-                          height: 4,
-                          borderRadius: 999,
-                          background: isToday ? "#fff" : "#2563eb",
-                          display: "block"
-                        }}
-                      />
-                    )}
                   </button>
                 );
               })}
@@ -525,14 +479,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Subscription (moved to left-bottom blank area) */}
-          <div style={{ background: "#2563eb", color: "#fff", borderRadius: 14, padding: 14, alignSelf: "end", marginTop: "-6px" }}>
+          <div style={{ background: "#2563eb", color: "#fff", borderRadius: 14, padding: 14 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
               <div style={{ fontWeight: 900, fontSize: 15 }}>Subscription Status</div>
               <div style={{ background: "rgba(15,23,42,0.55)", padding: "4px 10px", borderRadius: 999, fontSize: 11, fontWeight: 900 }}>
                 Free Plan
               </div>
             </div>
-            <ul style={{ marginTop: 10, marginBottom: 0, paddingLeft: 18, opacity: 0.95, lineHeight: 1.5, fontSize: 13 }}>
+            <ul style={{ marginTop: 10, marginBottom: 0, paddingLeft: 16, opacity: 0.95, lineHeight: 1.5, fontSize: 13 }}>
               <li>5 AI job matches per day</li>
               <li>Basic analytics</li>
               <li>Standard support</li>
@@ -584,18 +538,16 @@ export default function DashboardPage() {
                 value={assistantText}
                 onChange={(e) => setAssistantText(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && assistantText.trim()) {
-                    handleSearch();
-                  }
+                  if (e.key === "Enter" && assistantText.trim() && !searchMut.isPending) searchMut.mutate();
                 }}
                 style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #bfdbfe" }}
               />
               <button
-                disabled={!assistantText.trim()}
-                onClick={handleSearch}
-                style={{ padding: "12px 14px", borderRadius: 12, border: "1px solid #2563eb", background: "#2563eb", color: "#fff", fontWeight: 800, cursor: assistantText.trim() ? "pointer" : "not-allowed", opacity: assistantText.trim() ? 1 : 0.5 }}
+                disabled={!assistantText.trim() || searchMut.isPending}
+                onClick={() => searchMut.mutate()}
+                style={{ padding: "12px 14px", borderRadius: 12, border: "1px solid #2563eb", background: "#2563eb", color: "#fff", fontWeight: 800 }}
               >
-                Search
+                {searchMut.isPending ? "Searching..." : "Search"}
               </button>
             </div>
 
@@ -605,12 +557,62 @@ export default function DashboardPage() {
                 <button
                   key={c}
                   onClick={() => setAssistantText((prev) => (prev ? `${prev} ${c}` : c))}
-                  style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#0b1220", color: "#fff", fontSize: 12, cursor: "pointer" }}
+                  style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#0b1220", color: "#fff", fontSize: 12 }}
                 >
                   {c}
                 </button>
               ))}
             </div>
+
+            {searchMut.error && (
+              <div style={{ marginTop: 10, color: "#b91c1c" }}>
+                {searchMut.error instanceof ApiError ? `${searchMut.error.code}: ${searchMut.error.message}` : "Search failed"}
+              </div>
+            )}
+
+            {jobSearchRes && !searchMut.isPending && (
+              <div style={{ marginTop: 12 }}>
+                {jobSearchRes.jobs.length === 0 ? (
+                  <div style={{ color: "#64748b" }}>No jobs found. Try another query.</div>
+                ) : (
+                  <div style={{ display: "grid", gap: 10 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+                      <div style={{ fontWeight: 900, color: "#0f172a" }}>
+                        Results: {jobSearchRes.jobs.length}/{jobSearchRes.total}
+                      </div>
+                      <Link href="/job-match" style={{ color: "#2563eb", fontWeight: 900 }}>
+                        Open Job Search →
+                      </Link>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+                      {jobSearchRes.jobs.map((j) => (
+                        <div key={j.id} style={{ background: "#fff", border: "1px solid #dbeafe", borderRadius: 14, padding: 12 }}>
+                          <div style={{ fontWeight: 900 }}>
+                            <Link href={`/jobs/${j.id}`} style={{ color: "#0f172a" }}>
+                              {j.title}
+                            </Link>
+                          </div>
+                          <div style={{ marginTop: 4, color: "#475569", fontSize: 13 }}>
+                            {j.company} · {j.location || "—"}
+                          </div>
+                          <div style={{ marginTop: 10, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                            <Link href={`/jobs/${j.id}`} style={{ fontWeight: 900, color: "#2563eb" }}>
+                              View details →
+                            </Link>
+                            {j.applyUrl && (
+                              <a href={j.applyUrl} target="_blank" rel="noreferrer" style={{ fontWeight: 900, color: "#2563eb" }}>
+                                Apply ↗
+                              </a>
+                            )}
+                            <div style={{ marginLeft: "auto", fontSize: 12, color: "#64748b" }}>{j.source}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 16 }}>
@@ -629,33 +631,12 @@ export default function DashboardPage() {
                   marginTop: 12,
                   display: "grid",
                   gridTemplateColumns: "minmax(320px, 1fr) minmax(280px, 340px)",
-                  gap: 16,
+                  gap: 14,
                   alignItems: "center"
                 }}
               >
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-                  <button
-                    onClick={() => router.push("/tracker")}
-                    style={{
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 12,
-                      padding: 20,
-                      minHeight: 95,
-                      background: "#fff",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      transition: "all 0.2s",
-                      width: "100%"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#2563eb";
-                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(37, 99, 235, 0.1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "#e2e8f0";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
-                  >
+                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#dbeafe", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/applications.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -665,29 +646,8 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Total Applications</div>
                       </div>
                     </div>
-                  </button>
-                  <button
-                    onClick={() => router.push("/tracker?status=INTERVIEW")}
-                    style={{
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 12,
-                      padding: 20,
-                      minHeight: 95,
-                      background: "#fff",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      transition: "all 0.2s",
-                      width: "100%"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#7c3aed";
-                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "#e2e8f0";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
-                  >
+                  </div>
+                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#ede9fe", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/interviews.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -697,29 +657,8 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Interviews</div>
                       </div>
                     </div>
-                  </button>
-                  <button
-                    onClick={() => router.push("/tracker?status=OFFER")}
-                    style={{
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 12,
-                      padding: 20,
-                      minHeight: 95,
-                      background: "#fff",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      transition: "all 0.2s",
-                      width: "100%"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#22c55e";
-                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(34, 197, 94, 0.1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "#e2e8f0";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
-                  >
+                  </div>
+                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#dcfce7", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/offers.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -729,29 +668,8 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Offers</div>
                       </div>
                     </div>
-                  </button>
-                  <button
-                    onClick={() => router.push("/tracker")}
-                    style={{
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 12,
-                      padding: 20,
-                      minHeight: 95,
-                      background: "#fff",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      transition: "all 0.2s",
-                      width: "100%"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#f97316";
-                      e.currentTarget.style.boxShadow = "0 2px 8px rgba(249, 115, 22, 0.1)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "#e2e8f0";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
-                  >
+                  </div>
+                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#ffedd5", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/response-rate.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -761,7 +679,7 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Response Rate</div>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 </div>
                 <div
                   style={{
@@ -769,15 +687,11 @@ export default function DashboardPage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 12,
+                    gap: 16,
                     flexWrap: "wrap"
                   }}
                 >
-                  <StatusPie
-                    breakdown={metricsQ.data.statusBreakdown}
-                    showLegend={false}
-                    onClick={() => router.push("/tracker")}
-                  />
+                  <StatusPie breakdown={metricsQ.data.statusBreakdown} showLegend={false} />
                   <StatusLegend breakdown={metricsQ.data.statusBreakdown} />
                 </div>
               </div>
@@ -799,7 +713,7 @@ export default function DashboardPage() {
                 marginTop: 12,
                 display: "grid",
                 gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-                gap: 10
+                gap: 12
               }}
             >
               {[
@@ -816,14 +730,12 @@ export default function DashboardPage() {
                     padding: 12,
                     background: "#fff",
                     display: "grid",
-                    gap: 10,
-                    minWidth: 0,
-                    maxWidth: "100%"
+                    gap: 10
                   }}
                 >
-                  <div style={{ display: "flex", gap: 8, alignItems: "flex-start", minWidth: 0 }}>
-                    <img src={t.icon} alt="" width={40} height={40} style={{ width: 40, height: 40, display: "block", flexShrink: 0 }} />
-                    <div style={{ fontWeight: 900, fontSize: 12, lineHeight: 1.4, wordBreak: "normal", overflowWrap: "break-word", flex: 1, minWidth: 0 }}>{t.title}</div>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                    <img src={t.icon} alt="" width={48} height={48} style={{ width: 48, height: 48, display: "block" }} />
+                    <div style={{ fontWeight: 900, fontSize: 14, lineHeight: 1.2 }}>{t.title}</div>
                   </div>
                   <button
                     onClick={() => window.location.assign("/ai-tools")}
@@ -846,7 +758,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Right column */}
-          <div style={{ display: "grid", gap: 16, alignSelf: "stretch" }}>
+          <div style={{ display: "grid", gap: 16 }}>
           <div style={{ background: "#f1f5ff", borderRadius: 14, border: "1px solid #dbeafe", padding: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ fontWeight: 900, fontSize: 18 }}>Daily Job Matches</div>
@@ -861,70 +773,43 @@ export default function DashboardPage() {
             )}
 
             <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-              {matches.map((j) => {
-                // 从jobKeywords中提取关键词显示
-                const keywords: string[] = [];
-                if (j.jobKeywords) {
-                  keywords.push(...(j.jobKeywords.skills || []).slice(0, 2));
-                  keywords.push(...(j.jobKeywords.tools || []).slice(0, 1));
-                }
-                const matchScore = j.match?.matchScore ?? null;
-                
-                return (
-                  <div key={j.id} style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 12 }}>
-                    <div style={{ fontWeight: 900 }}>{j.title}</div>
-                    <div style={{ color: "#64748b", fontSize: 13 }}>{j.company}</div>
-                    <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>{j.location || "—"}</div>
-                    {keywords.length > 0 && (
-                      <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {keywords.slice(0, 3).map((t) => (
-                          <span key={t} style={{ fontSize: 12, background: "#f1f5f9", padding: "2px 8px", borderRadius: 999 }}>
-                            {t}
-                          </span>
-                        ))}
+              {matches.map((j) => (
+                <div key={j.jobId} style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 12 }}>
+                  <div style={{ fontWeight: 900 }}>{j.title}</div>
+                  <div style={{ color: "#64748b", fontSize: 13 }}>{j.company}</div>
+                  <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>{j.location || "—"}</div>
+                  <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {(j.tags || []).slice(0, 3).map((t) => (
+                      <span key={t} style={{ fontSize: 12, background: "#f1f5f9", padding: "2px 8px", borderRadius: 999 }}>
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 999, background: "#dcfce7", display: "grid", placeItems: "center", color: "#166534", fontWeight: 900 }}>
+                        {Math.max(0, Math.min(99, j.matchScore))}
                       </div>
-                    )}
-                    <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-                      {matchScore !== null ? (
-                        <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                          <div style={{ width: 32, height: 32, borderRadius: 999, background: "#dcfce7", display: "grid", placeItems: "center", color: "#166534", fontWeight: 900 }}>
-                            {Math.max(0, Math.min(99, matchScore))}
-                          </div>
-                          <div style={{ color: "#64748b", fontSize: 12 }}>match</div>
-                        </div>
-                      ) : (
-                        <div style={{ color: "#64748b", fontSize: 12 }}>No match data</div>
-                      )}
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <Link href={`/jobs/${j.id}`} style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#fff", fontWeight: 800, fontSize: 12 }}>
-                          View
-                        </Link>
-                        <button
-                          onClick={() => {
-                            if (j.applyUrl) {
-                              window.open(j.applyUrl, "_blank", "noopener,noreferrer");
-                            }
-                            // 创建申请记录
-                            const ok = window.confirm("Did you apply? Click OK to confirm and add to Tracker.");
-                            if (!ok) return;
-                            applyMut.mutate({
-                              jobId: j.id,
-                              title: j.title,
-                              company: j.company,
-                              location: j.location || null,
-                              externalUrl: j.applyUrl || null
-                            });
-                          }}
-                          disabled={applyMut.isPending}
-                          style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #0f172a", background: "#0f172a", color: "#fff", fontWeight: 800, fontSize: 12 }}
-                        >
-                          Apply
-                        </button>
-                      </div>
+                      <div style={{ color: "#64748b", fontSize: 12 }}>match</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Link href={`/jobs/${j.jobId}`} style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#fff", fontWeight: 800 }}>
+                        View
+                      </Link>
+                      <button
+                        onClick={() => {
+                          if (j.externalUrl) window.open(j.externalUrl, "_blank", "noopener,noreferrer");
+                          applyMut.mutate(j);
+                        }}
+                        disabled={applyMut.isPending}
+                        style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #0f172a", background: "#0f172a", color: "#fff", fontWeight: 800 }}
+                      >
+                        Apply
+                      </button>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
 
             {applyMut.error && (
