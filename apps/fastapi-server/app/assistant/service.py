@@ -27,6 +27,27 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def detect_language(text: str) -> str:
+    """
+    Detect if the text is primarily Chinese or English.
+    Returns 'zh' for Chinese, 'en' for English.
+    """
+    if not text or not text.strip():
+        return "en"  # Default to English
+    
+    # Count Chinese characters (CJK unified ideographs)
+    chinese_chars = sum(1 for char in text if '\u4e00' <= char <= '\u9fff')
+    total_chars = len([c for c in text if c.isalnum() or '\u4e00' <= c <= '\u9fff'])
+    
+    if total_chars == 0:
+        return "en"
+    
+    # If more than 30% of characters are Chinese, consider it Chinese
+    chinese_ratio = chinese_chars / total_chars if total_chars > 0 else 0
+    
+    return "zh" if chinese_ratio > 0.3 else "en"
+
+
 def looks_like_quick_search(text: str) -> bool:
     """
     Conservative function to determine if input looks like a quick search query.
@@ -153,6 +174,9 @@ def chat_with_assistant(
     mode = "DIRECT_SEARCH" if is_quick_search else "LLM_CHAT"
     logger.info(f"[Assistant] Mode: {mode}, quick_search: {is_quick_search}, Message: {message[:100]}")
     
+    # Detect user language
+    user_language = detect_language(message)
+    
     # DIRECT_SEARCH: Skip OpenAI, query DB directly
     if is_quick_search:
         try:
@@ -167,14 +191,20 @@ def chat_with_assistant(
                 sort_by="match"
             )
             
-            # Build response
+            # Build response based on user language
             jobs = search_result.get("jobs", [])
             total = search_result.get("total", 0)
             
             if total == 0:
-                assistant_text = "我没有在数据库中找到匹配岗位。你可以换关键词/地点，或告诉我你想要的方向我来帮你推荐。"
+                if user_language == "zh":
+                    assistant_text = "我没有在数据库中找到匹配岗位。你可以换关键词/地点，或告诉我你想要的方向我来帮你推荐。"
+                else:
+                    assistant_text = "I couldn't find any matching jobs in the database. You can try different keywords or locations, or tell me what direction you're interested in and I can help recommend jobs."
             else:
-                assistant_text = f"我找到了 {total} 个匹配的岗位。请查看右侧的搜索结果。"
+                if user_language == "zh":
+                    assistant_text = f"我找到了 {total} 个匹配的岗位。请查看右侧的搜索结果。"
+                else:
+                    assistant_text = f"I found {total} matching jobs. Please check the search results on the right."
             
             # Build UI actions
             ui_actions = [
@@ -240,7 +270,14 @@ def chat_with_assistant(
         enhanced_context["resume"] = {"hasResume": False}
     
     # Build messages for OpenAI
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    # Add language instruction to system prompt
+    language_instruction = ""
+    if user_language == "zh":
+        language_instruction = "\n\n**IMPORTANT: The user is communicating in Chinese. You MUST respond in Chinese (简体中文). All your responses should be in Chinese, including explanations, recommendations, and any conversational text.**"
+    else:
+        language_instruction = "\n\n**IMPORTANT: The user is communicating in English. You MUST respond in English. All your responses should be in English, including explanations, recommendations, and any conversational text.**"
+    
+    messages = [{"role": "system", "content": SYSTEM_PROMPT + language_instruction}]
     
     # Add enhanced context
     context_parts = []

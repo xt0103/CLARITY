@@ -601,17 +601,17 @@ export default function JobDetailPage() {
                   <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 16, background: "#fff" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                       {[
-                        { time: "9:00 AM", activity: "Team Standup", duration: "15 min", category: "Meeting", color: "#3b82f6" },
-                        { time: "9:15 AM", activity: "Product Strategy Review", duration: "2 hrs", category: "Focus", color: "#10b981" },
-                        { time: "11:30 AM", activity: "Coffee Break & Networking", duration: "30 min", category: "Break", color: "#f59e0b" },
-                        { time: "12:00 PM", activity: "User Research Session", duration: "1 hr", category: "Meeting", color: "#3b82f6" },
-                        { time: "1:00 PM", activity: "Lunch Break", duration: "1 hr", category: "Break", color: "#f59e0b" },
-                        { time: "2:00 PM", activity: "Deep Work - Roadmap Planning", duration: "2 hrs", category: "Focus", color: "#10b981" },
-                        { time: "4:00 PM", activity: "Cross-team Collaboration", duration: "1 hr", category: "Meeting", color: "#3b82f6" },
-                        { time: "5:00 PM", activity: "Wrap-up & Planning", duration: "30 min", category: "Focus", color: "#10b981" },
-                        { time: "5:30 PM", activity: "Personal Time / Gym", duration: "Flexible", category: "Life", color: "#8b5cf6" }
+                        { time: "9:00 AM", activity: "Team Standup", duration: "15 min", category: "Meeting", color: "#3b82f6", bgColor: "#dbeafe" },
+                        { time: "9:15 AM", activity: "Product Strategy Review", duration: "2 hrs", category: "Focus", color: "#f59e0b", bgColor: "#fef3c7" },
+                        { time: "11:30 AM", activity: "Coffee Break & Networking", duration: "30 min", category: "Break", color: "#10b981", bgColor: "#d1fae5" },
+                        { time: "12:00 PM", activity: "User Research Session", duration: "1 hr", category: "Meeting", color: "#3b82f6", bgColor: "#dbeafe" },
+                        { time: "1:00 PM", activity: "Lunch Break", duration: "1 hr", category: "Break", color: "#10b981", bgColor: "#d1fae5" },
+                        { time: "2:00 PM", activity: "Deep Work - Roadmap Planning", duration: "2 hrs", category: "Focus", color: "#f59e0b", bgColor: "#fef3c7" },
+                        { time: "4:00 PM", activity: "Cross-team Collaboration", duration: "1 hr", category: "Meeting", color: "#3b82f6", bgColor: "#dbeafe" },
+                        { time: "5:00 PM", activity: "Wrap-up & Planning", duration: "30 min", category: "Focus", color: "#f59e0b", bgColor: "#fef3c7" },
+                        { time: "5:30 PM", activity: "Personal Time / Gym", duration: "Flexible", category: "Life", color: "#8b5cf6", bgColor: "#ede9fe" }
                       ].map((item, idx) => (
-                        <div key={idx} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                        <div key={idx} style={{ display: "flex", gap: 12, alignItems: "flex-start", background: item.bgColor, borderRadius: 8, padding: 12, border: "1px solid rgba(226,232,240,0.5)" }}>
                           <div style={{ minWidth: 80, fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{item.time}</div>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontSize: 15, fontWeight: 500, color: "#475569", marginBottom: 4 }}>{item.activity}</div>
@@ -621,8 +621,8 @@ export default function JobDetailPage() {
                                 style={{
                                   padding: "2px 8px",
                                   borderRadius: 12,
-                                  background: `${item.color}15`,
-                                  color: item.color,
+                                  background: item.color,
+                                  color: "#fff",
                                   fontSize: 11,
                                   fontWeight: 600
                                 }}
@@ -976,23 +976,29 @@ export default function JobDetailPage() {
                 {/* Your Team Position */}
                 <div>
                   <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, color: "#0f172a" }}>Your Team Position</h2>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 16, background: "#fff" }}>
+                  <div style={{ background: "linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)", borderRadius: 12, padding: 20, color: "#fff" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ fontSize: 14 }}>🎯</span>
+                      </div>
+                      <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#fff" }}>Your Team Position</h3>
+                    </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 6 }}>Strategic Leader</div>
-                        <div style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>
+                      <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 8, padding: 14 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "#fff", marginBottom: 6 }}>Strategic Leader</div>
+                        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", lineHeight: 1.6 }}>
                           You'll bridge product vision with technical execution, working closely with Sarah and Michael.
                         </div>
                       </div>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 6 }}>Collaboration Style</div>
-                        <div style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>
+                      <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 8, padding: 14 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "#fff", marginBottom: 6 }}>Collaboration Style</div>
+                        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", lineHeight: 1.6 }}>
                           Your analytical approach complements the team's creative energy - perfect balance!
                         </div>
                       </div>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 6 }}>Growth Opportunities</div>
-                        <div style={{ fontSize: 14, color: "#475569", lineHeight: 1.6 }}>
+                      <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 8, padding: 14 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "#fff", marginBottom: 6 }}>Growth Opportunities</div>
+                        <div style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", lineHeight: 1.6 }}>
                           Direct mentorship from Sarah (Stanford alum) and ownership of key product initiatives.
                         </div>
                       </div>
@@ -1003,23 +1009,27 @@ export default function JobDetailPage() {
                 {/* Salary Position */}
                 <div>
                   <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, color: "#0f172a" }}>Salary Position</h2>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 16, background: "#fff" }}>
-                    <div style={{ fontSize: 24, fontWeight: 700, color: "#0f172a", marginBottom: 20 }}>
-                      $175,000
-                      <span style={{ fontSize: 14, fontWeight: 500, color: "#64748b", marginLeft: 8 }}>Your Salary (Mid-range)</span>
+                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, background: "#fff" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ fontSize: 14, color: "#22c55e" }}>$</span>
+                      </div>
+                      <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#0f172a" }}>Salary Position</h3>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div style={{ fontSize: 32, fontWeight: 700, color: "#2563eb", marginBottom: 8 }}>
+                      $175,000
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: "#64748b", marginBottom: 24 }}>Your Salary (Mid-range)</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                       <div>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                           <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>vs. SF Average</span>
                           <span style={{ fontSize: 14, fontWeight: 600, color: "#22c55e" }}>+23%</span>
                         </div>
-                        <div style={{ position: "relative", height: 24, background: "#f1f5f9", borderRadius: 12, overflow: "hidden" }}>
+                        <div style={{ fontSize: 13, color: "#475569", marginBottom: 8 }}>City avg: $142,000</div>
+                        <div style={{ position: "relative", height: 8, background: "#e2e8f0", borderRadius: 4, overflow: "hidden" }}>
                           <div style={{ width: "100%", height: "100%", background: "#e2e8f0", position: "absolute" }} />
-                          <div style={{ width: "73%", height: "100%", background: "#22c55e", position: "absolute" }} />
-                          <div style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", fontSize: 12, fontWeight: 600, color: "#166534" }}>
-                            City avg: $142,000
-                          </div>
+                          <div style={{ width: "82%", height: "100%", background: "#22c55e", position: "absolute" }} />
                         </div>
                       </div>
                       <div>
@@ -1027,17 +1037,18 @@ export default function JobDetailPage() {
                           <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>vs. Industry Average</span>
                           <span style={{ fontSize: 14, fontWeight: 600, color: "#2563eb" }}>+11%</span>
                         </div>
-                        <div style={{ position: "relative", height: 24, background: "#f1f5f9", borderRadius: 12, overflow: "hidden" }}>
+                        <div style={{ fontSize: 13, color: "#475569", marginBottom: 8 }}>Industry avg: $158,000</div>
+                        <div style={{ position: "relative", height: 8, background: "#e2e8f0", borderRadius: 4, overflow: "hidden" }}>
                           <div style={{ width: "100%", height: "100%", background: "#e2e8f0", position: "absolute" }} />
                           <div style={{ width: "89%", height: "100%", background: "#2563eb", position: "absolute" }} />
-                          <div style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", fontSize: 12, fontWeight: 600, color: "#1e40af" }}>
-                            Industry avg: $158,000
-                          </div>
                         </div>
                       </div>
-                      <div style={{ padding: 12, background: "#eef2ff", borderRadius: 8, border: "1px solid #c7d2fe" }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "#3730a3", marginBottom: 4 }}>Top 22% Earner</div>
-                        <div style={{ fontSize: 13, color: "#3730a3", lineHeight: 1.5 }}>
+                      <div style={{ padding: 14, background: "#fef3c7", borderRadius: 8, border: "1px solid #fde68a" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                          <span style={{ fontSize: 16 }}>⭐</span>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Top 22% Earner</div>
+                        </div>
+                        <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.5 }}>
                           You're in the 78th percentile for your role in San Francisco
                         </div>
                       </div>
@@ -1186,7 +1197,12 @@ export default function JobDetailPage() {
                 >
                   {/* Skills You'll Gain */}
                   <div>
-                  <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: "#0f172a" }}>Skills You'll Gain</h2>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                    <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ fontSize: 14, color: "#2563eb" }}>🛡️</span>
+                    </div>
+                    <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: "#0f172a" }}>Skills You'll Gain</h2>
+                  </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                     {[
                       { skill: "Product Strategy", now: 70, future: 95 },
@@ -1204,21 +1220,21 @@ export default function JobDetailPage() {
                             <span style={{ color: "#2563eb", fontWeight: 600 }}>{item.future}%</span>
                           </div>
                         </div>
-                        <div style={{ position: "relative", height: 32, background: "#f1f5f9", borderRadius: 8, overflow: "hidden" }}>
+                        <div style={{ position: "relative", height: 24, background: "#f1f5f9", borderRadius: 12, overflow: "hidden" }}>
                           <div style={{ position: "absolute", left: 0, top: 0, width: `${item.now}%`, height: "100%", background: "#cbd5e1" }} />
-                          <div style={{ position: "absolute", left: 0, top: 0, width: `${item.future}%`, height: "100%", background: "#2563eb", opacity: 0.6 }} />
+                          <div style={{ position: "absolute", left: 0, top: 0, width: `${item.future}%`, height: "100%", background: "#2563eb", opacity: 0.7 }} />
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+                  <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
                     {[
-                      { icon: "Ω", title: "AI/ML Expertise", desc: "Cutting-edge tech" },
-                      { icon: "👥", title: "Leadership", desc: "Team management" },
-                      { icon: "📊", title: "Data Strategy", desc: "Analytics depth" }
+                      { icon: "💡", title: "AI/ML Expertise", desc: "Cutting-edge tech", bgColor: "#e5efff", iconColor: "#2563eb" },
+                      { icon: "👥", title: "Leadership", desc: "Team management", bgColor: "#fff7d6", iconColor: "#f59e0b" },
+                      { icon: "📊", title: "Data Strategy", desc: "Analytics depth", bgColor: "#e6fff2", iconColor: "#10b981" }
                     ].map((item, idx) => (
-                      <div key={idx} style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 16, background: "#fff", textAlign: "center" }}>
-                        <div style={{ fontSize: 32, marginBottom: 8 }}>{item.icon}</div>
+                      <div key={idx} style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 16, background: item.bgColor, textAlign: "center" }}>
+                        <div style={{ fontSize: 32, marginBottom: 8, color: item.iconColor }}>{item.icon}</div>
                         <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 4 }}>{item.title}</div>
                         <div style={{ fontSize: 12, color: "#64748b" }}>{item.desc}</div>
                       </div>
@@ -1393,57 +1409,85 @@ export default function JobDetailPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                 {/* Company Growth */}
                 <div>
-                  <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: "#0f172a" }}>Company Growth</h2>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 16, background: "#fff" }}>
+                  <div style={{ background: "linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%)", borderRadius: 12, padding: 20, color: "#fff" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+                      <div style={{ width: 24, height: 24, borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ fontSize: 14 }}>📊</span>
+                      </div>
+                      <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#fff" }}>Company Growth</h2>
+                    </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Revenue Growth</span>
-                        <span style={{ fontSize: 16, fontWeight: 700, color: "#22c55e" }}>+147%</span>
+                      <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 8, padding: 14 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Revenue Growth</span>
+                          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>+147%</span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", textAlign: "right" }}>YoY</div>
                       </div>
-                      <div style={{ fontSize: 12, color: "#64748b" }}>YoY</div>
-                      <div style={{ height: 1, background: "#e2e8f0" }} />
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Team Expansion</span>
-                        <span style={{ fontSize: 16, fontWeight: 700, color: "#22c55e" }}>+85%</span>
+                      <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 8, padding: 14 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Team Expansion</span>
+                          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>+85%</span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", textAlign: "right" }}>Last 12mo</div>
                       </div>
-                      <div style={{ fontSize: 12, color: "#64748b" }}>Last 12mo</div>
-                      <div style={{ height: 1, background: "#e2e8f0" }} />
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Market Share</span>
-                        <span style={{ fontSize: 16, fontWeight: 700, color: "#2563eb" }}>#3</span>
+                      <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 8, padding: 14 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Market Share</span>
+                          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>#3</span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", textAlign: "right" }}>in sector</div>
                       </div>
-                      <div style={{ fontSize: 12, color: "#64748b" }}>in sector</div>
-                      <div style={{ height: 1, background: "#e2e8f0" }} />
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>Funding Round</span>
-                        <span style={{ fontSize: 16, fontWeight: 700, color: "#2563eb" }}>Series C</span>
+                      <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: 8, padding: 14 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Funding Round</span>
+                          <span style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>Series C</span>
+                        </div>
+                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", textAlign: "right" }}>($120M)</div>
                       </div>
-                      <div style={{ fontSize: 12, color: "#64748b" }}>($120M)</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Industry Impact */}
                 <div>
-                  <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: "#0f172a" }}>Industry Impact</h2>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 16, background: "#fff" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                    <span style={{ fontSize: 20, color: "#f59e0b" }}>⚡</span>
+                    <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: "#0f172a" }}>Industry Impact</h2>
+                  </div>
+                  <div style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 20, background: "#fff", boxShadow: "0 8px 20px rgba(15,23,42,0.06)" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 8 }}>Cutting-Edge Tech</div>
-                        <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
-                          Working with latest AI/ML technologies that are shaping the future of SaaS
+                      <div style={{ background: "linear-gradient(to right, #eef2ff 0%, #f5f9ff 100%)", borderRadius: 10, padding: 16, display: "flex", alignItems: "flex-start", gap: 12 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#e0e7ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <span style={{ fontSize: 16, color: "#2563eb" }}>⭐</span>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 15, fontWeight: 600, color: "#0f172a", marginBottom: 6 }}>Cutting-Edge Tech</div>
+                          <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
+                            Working with latest AI/ML technologies that are shaping the future of SaaS
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 8 }}>Industry Recognition</div>
-                        <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
-                          Company featured in TechCrunch, Forbes, and named "Best Place to Work 2024"
+                      <div style={{ background: "linear-gradient(to right, #fff7d6 0%, #fffaf0 100%)", borderRadius: 10, padding: 16, display: "flex", alignItems: "flex-start", gap: 12 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#ffeec0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <span style={{ fontSize: 16, color: "#f59e0b" }}>🏆</span>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 15, fontWeight: 600, color: "#0f172a", marginBottom: 6 }}>Industry Recognition</div>
+                          <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
+                            Company featured in TechCrunch, Forbes, and named "Best Place to Work 2024"
+                          </div>
                         </div>
                       </div>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", marginBottom: 8 }}>Global Reach</div>
-                        <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
-                          Expanding to APAC and EMEA markets - international exposure and growth opportunities
+                      <div style={{ background: "linear-gradient(to right, #dcfce7 0%, #f0fdf4 100%)", borderRadius: 10, padding: 16, display: "flex", alignItems: "flex-start", gap: 12 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#bbf7d0", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <span style={{ fontSize: 16, color: "#10b981" }}>🌍</span>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 15, fontWeight: 600, color: "#0f172a", marginBottom: 6 }}>Global Reach</div>
+                          <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
+                            Expanding to APAC and EMEA markets – international exposure and growth opportunities
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1452,64 +1496,94 @@ export default function JobDetailPage() {
 
                 {/* Potential Conflicts */}
                 <div>
-                  <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16, color: "#0f172a" }}>Potential Conflicts</h2>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    {[
-                      { 
-                        title: "Early Morning Meetings", 
-                        severity: "Medium", 
-                        conflict: "Based on your profile preferring late-start schedules (10am+), this role requires 9am daily standups. Team is distributed across EST timezone.",
-                        mitigation: "Consider negotiating flexible start times or asynchronous standups with your manager during onboarding."
-                      },
-                      { 
-                        title: "High Extroversion Environment", 
-                        severity: "Low", 
-                        conflict: "Your ISFJ profile indicates preference for deep work. Team culture emphasizes frequent social events and open collaboration spaces (80% of time).",
-                        mitigation: "Request dedicated quiet hours or work-from-home days. Many introverts thrive here with boundaries."
-                      },
-                      { 
-                        title: "Fast-Paced Risk-Taking Culture", 
-                        severity: "High", 
-                        conflict: "Your work history shows preference for stability and thorough planning. Company values 'move fast and break things' mentality with 2-week sprint cycles.",
-                        mitigation: "This is a growth opportunity but may cause stress initially. Request mentorship and start with smaller scope projects."
-                      },
-                      { 
-                        title: "On-Call Rotation Expected", 
-                        severity: "Medium", 
-                        conflict: "Role includes quarterly on-call duties (1 week/month). Your profile indicates strong work-life boundaries and family commitments after 6pm.",
-                        mitigation: "Discuss on-call expectations upfront. Many parents negotiate specific hours or swap weeks with teammates."
-                      },
-                      { 
-                        title: "Async-First Communication", 
-                        severity: "Low", 
-                        conflict: "Your background shows preference for face-to-face meetings. Company culture is heavily async (Slack/Notion) with minimal synchronous meetings.",
-                        mitigation: "This actually reduces meeting fatigue. Embrace written communication - it's a valuable skill for remote work."
-                      }
-                    ].map((item, idx) => (
-                      <div key={idx} style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 16, background: "#fff" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                          <div style={{ fontSize: 15, fontWeight: 600, color: "#0f172a" }}>{item.title}</div>
-                          <span style={{ 
-                            padding: "4px 8px", 
-                            borderRadius: 12, 
-                            background: item.severity === "High" ? "#fee2e2" : item.severity === "Medium" ? "#fef3c7" : "#dcfce7",
-                            color: item.severity === "High" ? "#991b1b" : item.severity === "Medium" ? "#92400e" : "#166534",
-                            fontSize: 11, 
-                            fontWeight: 600 
-                          }}>
-                            {item.severity}
-                          </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+                    <span style={{ fontSize: 20, color: "#ef4444" }}>⚠️</span>
+                    <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: "#0f172a" }}>Potential Conflicts</h2>
+                  </div>
+                  <div style={{ background: "#f3f4f6", borderRadius: 12, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                      {[
+                        { 
+                          title: "Early Morning Meetings",
+                          icon: "🕐",
+                          severity: "Medium",
+                          bgColor: "#FFFBEB",
+                          tagBg: "#FDBA74",
+                          tagColor: "#92400e",
+                          conflict: "Based on your profile preferring late-start schedules (10am+), this role requires 9am daily standups. Team is distributed across EST timezone.",
+                          mitigation: "Consider negotiating flexible start times or asynchronous standups with your manager during onboarding."
+                        },
+                        { 
+                          title: "High Extroversion Environment",
+                          icon: "👥",
+                          severity: "Low",
+                          bgColor: "#EFF6FF",
+                          tagBg: "#93C5FD",
+                          tagColor: "#1e40af",
+                          conflict: "Your ISFJ profile indicates preference for deep work. Team culture emphasizes frequent social events and open collaboration spaces (80% of time).",
+                          mitigation: "Request dedicated quiet hours or work-from-home days. Many introverts thrive here with boundaries."
+                        },
+                        { 
+                          title: "Fast-Paced Risk-Taking Culture",
+                          icon: "⚡",
+                          severity: "High",
+                          bgColor: "#FEF2F2",
+                          tagBg: "#FCA5A5",
+                          tagColor: "#991b1b",
+                          conflict: "Your work history shows preference for stability and thorough planning. Company values 'move fast and break things' mentality with 2-week sprint cycles.",
+                          mitigation: "This is a growth opportunity but may cause stress initially. Request mentorship and start with smaller scope projects."
+                        },
+                        { 
+                          title: "On-Call Rotation Expected",
+                          icon: "⚠️",
+                          severity: "Medium",
+                          bgColor: "#FFFBEB",
+                          tagBg: "#FDBA74",
+                          tagColor: "#92400e",
+                          conflict: "Role includes quarterly on-call duties (1 week/month). Your profile indicates strong work-life boundaries and family commitments after 6pm.",
+                          mitigation: "Discuss on-call expectations upfront. Many parents negotiate specific hours or swap weeks with teammates."
+                        },
+                        { 
+                          title: "Async-First Communication",
+                          icon: "ℹ️",
+                          severity: "Low",
+                          bgColor: "#EFF6FF",
+                          tagBg: "#93C5FD",
+                          tagColor: "#1e40af",
+                          conflict: "Your background shows preference for face-to-face meetings. Company culture is heavily async (Slack/Notion) with minimal synchronous meetings.",
+                          mitigation: "This actually reduces meeting fatigue. Embrace written communication - it's a valuable skill for remote work."
+                        }
+                      ].map((item, idx) => (
+                        <div key={idx} style={{ background: item.bgColor, borderRadius: 10, padding: 16 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <span style={{ fontSize: 20 }}>{item.icon}</span>
+                              <div style={{ fontSize: 15, fontWeight: 600, color: "#0f172a" }}>{item.title}</div>
+                            </div>
+                            <span style={{ 
+                              padding: "4px 10px", 
+                              borderRadius: 12, 
+                              background: item.tagBg,
+                              color: item.tagColor,
+                              fontSize: 11, 
+                              fontWeight: 600 
+                            }}>
+                              {item.severity}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6, marginBottom: 12 }}>
+                            {item.conflict}
+                          </div>
+                          <div style={{ background: "#fff", borderRadius: 8, padding: 12, display: "flex", alignItems: "flex-start", gap: 8 }}>
+                            <span style={{ fontSize: 14, color: "#22c55e", flexShrink: 0, marginTop: 2 }}>✓</span>
+                            <div>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 4 }}>Mitigation:</div>
+                              <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>{item.mitigation}</div>
+                            </div>
+                          </div>
                         </div>
-                        <div style={{ marginBottom: 12 }}>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 4 }}>Conflict:</div>
-                          <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>{item.conflict}</div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 4 }}>Mitigation:</div>
-                          <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>{item.mitigation}</div>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

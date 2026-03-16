@@ -3,11 +3,12 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import { api } from "@/lib/api";
 import { ApiError } from "@/lib/apiClient";
-import type { ApplicationStatus, JobListResponse, MatchJobCard } from "@/lib/types";
+import type { ApplicationStatus } from "@/lib/types";
 import { draftToText, getResumeDraft, getUseResumeDraftForMatching } from "@/lib/resumeDraft";
 import { getProfileOverride } from "@/lib/profileOverride";
 
@@ -36,7 +37,21 @@ function StatusLegend({
       {order.map((k) => {
         const v = breakdown[k] ?? 0;
         return (
-          <div key={k} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+          <Link
+            key={k}
+            href={`/tracker?status=${k}`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 10,
+              textDecoration: "none",
+              color: "inherit",
+              padding: "6px 8px",
+              borderRadius: 10
+            }}
+            title="Go to Job Tracker (filtered)"
+          >
             <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
               <span
                 style={{
@@ -56,7 +71,7 @@ function StatusLegend({
               <span style={{ fontSize: 12, fontWeight: 900, textAlign: "right", minWidth: 20 }}>{v}</span>
               <span style={{ fontSize: 12, color: "#64748b", textAlign: "right", minWidth: 35 }}>{total ? `${pct(v, total)}%` : "0%"}</span>
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>
@@ -163,6 +178,7 @@ function StatusPie({
 
 export default function DashboardPage() {
   const qc = useQueryClient();
+  const router = useRouter();
   const meQ = useQuery({
     queryKey: ["me"],
     queryFn: async () => api.me()
@@ -179,14 +195,12 @@ export default function DashboardPage() {
   });
 
   const [assistantText, setAssistantText] = useState("");
-  const [jobSearchRes, setJobSearchRes] = useState<JobListResponse | null>(null);
 
   const dailyQ = useQuery({
     queryKey: ["dailyMatches", meQ.data?.user.defaultResumeId || null],
     queryFn: async () => {
-      const rid = meQ.data?.user.defaultResumeId ?? null;
-      // Pull a larger candidate set, then pick the top 4 by matchScore in the UI.
-      const res = await api.matchSearch({ queryText: "software engineer", resumeId: rid, limit: 20 });
+      // Use searchJobs with withMatch=true to get match scores consistent with jobDetail
+      const res = await api.searchJobs({ query: "", withMatch: true, limit: 50, offset: 0 });
       return res.jobs;
     },
     enabled: !!meQ.data,
@@ -198,8 +212,9 @@ export default function DashboardPage() {
     return [...matchesRaw]
       .map((j, idx) => ({ j, idx }))
       .sort((a, b) => {
-        const av = typeof a.j.matchScore === "number" ? a.j.matchScore : -1;
-        const bv = typeof b.j.matchScore === "number" ? b.j.matchScore : -1;
+        // Use match.matchScore (same as jobDetail) instead of matchScore
+        const av = typeof a.j.match?.matchScore === "number" ? a.j.match.matchScore : -1;
+        const bv = typeof b.j.match?.matchScore === "number" ? b.j.match.matchScore : -1;
         if (bv !== av) return bv - av;
         return a.idx - b.idx;
       })
@@ -207,27 +222,19 @@ export default function DashboardPage() {
       .map((x) => x.j);
   }, [matchesRaw]);
 
-  const searchMut = useMutation({
-    mutationFn: async () =>
-      api.searchJobs({
-        query: assistantText.trim(),
-        limit: 6,
-        offset: 0
-      }),
-    onSuccess: (res) => setJobSearchRes(res)
-  });
+  // Dashboard search redirects to /job-match; no local result rendering here.
 
   const applyMut = useMutation({
-    mutationFn: async (job: MatchJobCard) => {
+    mutationFn: async (job: { id: string; title: string; company: string; location?: string | null; applyUrl?: string | null; externalUrl?: string | null }) => {
       const ok = window.confirm("Did you apply? Click OK to confirm and add to Tracker.");
       if (!ok) return null;
       return api.createApplication({
-        jobId: job.jobId,
+        jobId: job.id,
         jobSnapshot: {
           title: job.title,
           company: job.company,
           location: job.location || null,
-          externalUrl: job.externalUrl || null
+          externalUrl: job.applyUrl || job.externalUrl || null
         },
         platformSource: "OFFICIAL",
         dateApplied: new Date().toISOString().slice(0, 10),
@@ -296,6 +303,35 @@ export default function DashboardPage() {
   const [calMonth, setCalMonth] = useState(today.getMonth()); // 0-based
   const [selectedDay, setSelectedDay] = useState(today.getDate());
 
+  const monthRange = useMemo(() => {
+    const from = new Date(calYear, calMonth, 1);
+    const to = new Date(calYear, calMonth + 1, 0);
+    const f = `${from.getFullYear()}-${String(from.getMonth() + 1).padStart(2, "0")}-${String(from.getDate()).padStart(2, "0")}`;
+    const t = `${to.getFullYear()}-${String(to.getMonth() + 1).padStart(2, "0")}-${String(to.getDate()).padStart(2, "0")}`;
+    return { from: f, to: t };
+  }, [calYear, calMonth]);
+
+  const appsMonthQ = useQuery({
+    queryKey: ["applications", "calendar", monthRange.from, monthRange.to],
+    queryFn: async () => api.listApplications({ from: monthRange.from, to: monthRange.to, page: 1, pageSize: 200 }),
+    enabled: !!meQ.data,
+    staleTime: 30_000
+  });
+
+  const appliedDays = useMemo(() => {
+    const set = new Set<number>();
+    const apps = appsMonthQ.data?.applications || [];
+    for (const a of apps) {
+      const d = a.dateApplied;
+      // YYYY-MM-DD
+      if (typeof d === "string" && d.length >= 10) {
+        const day = Number(d.slice(8, 10));
+        if (Number.isFinite(day)) set.add(day);
+      }
+    }
+    return set;
+  }, [appsMonthQ.data]);
+
   const cal = useMemo(() => {
     const firstDow = new Date(calYear, calMonth, 1).getDay(); // 0=Sun..6=Sat
     const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
@@ -352,18 +388,19 @@ export default function DashboardPage() {
             // min widths + gaps must fit; otherwise content looks clipped/overlapped.
             gridTemplateColumns: "minmax(300px, 360px) minmax(520px, 1fr) minmax(300px, 360px)",
             gap: 18,
-            alignItems: "start"
+            alignItems: "stretch"
           }}
         >
           {/* Left column */}
-          <div style={{ display: "grid", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div
             style={{
               background: "linear-gradient(135deg, #0b1220, #0f172a)",
               color: "#fff",
               borderRadius: 14,
               padding: 16,
-              minHeight: 160
+              minHeight: 160,
+              flexShrink: 0
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -405,8 +442,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 14 }}>
-            <div style={{ fontWeight: 800, marginBottom: 10, fontSize: 15 }}>Calendar</div>
+          <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 16, flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ fontWeight: 800, marginBottom: 12, fontSize: 15 }}>Calendar</div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <div style={{ fontWeight: 900, fontSize: 17, color: "#1d4ed8" }}>{monthLabel}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -440,7 +477,7 @@ export default function DashboardPage() {
             </div>
             <div style={{ color: "#64748b", fontSize: 11, marginTop: 5 }}>{selectedLabel}</div>
 
-            <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
+            <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10, flex: 1 }}>
               {["S", "M", "T", "W", "T", "F", "S"].map((d, idx) => (
                 <div key={`dow-${idx}`} style={{ fontSize: 10, color: "#64748b", textAlign: "center", fontWeight: 800 }}>
                   {d}
@@ -449,6 +486,7 @@ export default function DashboardPage() {
               {cal.cells.map((c, idx) => {
                 const isToday = c.day != null && calYear === today.getFullYear() && calMonth === today.getMonth() && c.day === today.getDate();
                 const isSelected = c.day != null && c.day === selectedDay;
+                const hasApplied = c.day != null ? appliedDays.has(c.day) : false;
                 return (
                   <button
                     key={`cal-${idx}`}
@@ -466,12 +504,29 @@ export default function DashboardPage() {
                       fontWeight: isToday || isSelected ? 900 : 700,
                       opacity: c.day == null ? 0 : 1,
                       cursor: c.day == null ? "default" : "pointer",
-                      fontSize: 12
+                      fontSize: 12,
+                      position: "relative"
                     }}
                     aria-label={c.day == null ? "empty" : `day-${c.day}`}
                     disabled={c.day == null}
                   >
                     {c.day ?? ""}
+                    {hasApplied && (
+                      <span
+                        aria-label="applied-dot"
+                        style={{
+                          position: "absolute",
+                          bottom: 4,
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          width: 5,
+                          height: 5,
+                          borderRadius: 999,
+                          background: isToday ? "#fff" : "#2563eb",
+                          opacity: isSelected ? 0.9 : 0.85
+                        }}
+                      />
+                    )}
                   </button>
                 );
               })}
@@ -479,14 +534,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Subscription (moved to left-bottom blank area) */}
-          <div style={{ background: "#2563eb", color: "#fff", borderRadius: 14, padding: 14 }}>
+          <div style={{ background: "#2563eb", color: "#fff", borderRadius: 14, padding: 16, flexShrink: 0, display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
               <div style={{ fontWeight: 900, fontSize: 15 }}>Subscription Status</div>
               <div style={{ background: "rgba(15,23,42,0.55)", padding: "4px 10px", borderRadius: 999, fontSize: 11, fontWeight: 900 }}>
                 Free Plan
               </div>
             </div>
-            <ul style={{ marginTop: 10, marginBottom: 0, paddingLeft: 16, opacity: 0.95, lineHeight: 1.5, fontSize: 13 }}>
+            <ul style={{ marginTop: 12, marginBottom: 0, paddingLeft: 16, opacity: 0.95, lineHeight: 1.4, fontSize: 13 }}>
               <li>5 AI job matches per day</li>
               <li>Basic analytics</li>
               <li>Standard support</li>
@@ -494,7 +549,7 @@ export default function DashboardPage() {
             <button
               onClick={() => window.alert("Upgrade (coming soon)")}
               style={{
-                marginTop: 10,
+                marginTop: 12,
                 padding: "8px 12px",
                 borderRadius: 999,
                 border: 0,
@@ -538,16 +593,22 @@ export default function DashboardPage() {
                 value={assistantText}
                 onChange={(e) => setAssistantText(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && assistantText.trim() && !searchMut.isPending) searchMut.mutate();
+                  if (e.key === "Enter") {
+                    const q = assistantText.trim();
+                    router.push(q ? `/job-match?query=${encodeURIComponent(q)}` : "/job-match");
+                  }
                 }}
                 style={{ flex: 1, padding: 12, borderRadius: 12, border: "1px solid #bfdbfe" }}
               />
               <button
-                disabled={!assistantText.trim() || searchMut.isPending}
-                onClick={() => searchMut.mutate()}
+                disabled={!assistantText.trim()}
+                onClick={() => {
+                  const q = assistantText.trim();
+                  router.push(q ? `/job-match?query=${encodeURIComponent(q)}` : "/job-match");
+                }}
                 style={{ padding: "12px 14px", borderRadius: 12, border: "1px solid #2563eb", background: "#2563eb", color: "#fff", fontWeight: 800 }}
               >
-                {searchMut.isPending ? "Searching..." : "Search"}
+                Search
               </button>
             </div>
 
@@ -564,55 +625,6 @@ export default function DashboardPage() {
               ))}
             </div>
 
-            {searchMut.error && (
-              <div style={{ marginTop: 10, color: "#b91c1c" }}>
-                {searchMut.error instanceof ApiError ? `${searchMut.error.code}: ${searchMut.error.message}` : "Search failed"}
-              </div>
-            )}
-
-            {jobSearchRes && !searchMut.isPending && (
-              <div style={{ marginTop: 12 }}>
-                {jobSearchRes.jobs.length === 0 ? (
-                  <div style={{ color: "#64748b" }}>No jobs found. Try another query.</div>
-                ) : (
-                  <div style={{ display: "grid", gap: 10 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                      <div style={{ fontWeight: 900, color: "#0f172a" }}>
-                        Results: {jobSearchRes.jobs.length}/{jobSearchRes.total}
-                      </div>
-                      <Link href="/job-match" style={{ color: "#2563eb", fontWeight: 900 }}>
-                        Open Job Search →
-                      </Link>
-                    </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-                      {jobSearchRes.jobs.map((j) => (
-                        <div key={j.id} style={{ background: "#fff", border: "1px solid #dbeafe", borderRadius: 14, padding: 12 }}>
-                          <div style={{ fontWeight: 900 }}>
-                            <Link href={`/jobs/${j.id}`} style={{ color: "#0f172a" }}>
-                              {j.title}
-                            </Link>
-                          </div>
-                          <div style={{ marginTop: 4, color: "#475569", fontSize: 13 }}>
-                            {j.company} · {j.location || "—"}
-                          </div>
-                          <div style={{ marginTop: 10, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-                            <Link href={`/jobs/${j.id}`} style={{ fontWeight: 900, color: "#2563eb" }}>
-                              View details →
-                            </Link>
-                            {j.applyUrl && (
-                              <a href={j.applyUrl} target="_blank" rel="noreferrer" style={{ fontWeight: 900, color: "#2563eb" }}>
-                                Apply ↗
-                              </a>
-                            )}
-                            <div style={{ marginLeft: "auto", fontSize: 12, color: "#64748b" }}>{j.source}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           <div style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 16 }}>
@@ -636,7 +648,11 @@ export default function DashboardPage() {
                 }}
               >
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
+                  <Link
+                    href="/tracker"
+                    style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95, textDecoration: "none", color: "inherit" }}
+                    title="Go to Job Tracker"
+                  >
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#dbeafe", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/applications.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -646,8 +662,12 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Total Applications</div>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
+                  </Link>
+                  <Link
+                    href="/tracker?status=INTERVIEW"
+                    style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95, textDecoration: "none", color: "inherit" }}
+                    title="Go to Job Tracker (Interview)"
+                  >
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#ede9fe", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/interviews.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -657,8 +677,12 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Interviews</div>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
+                  </Link>
+                  <Link
+                    href="/tracker?status=OFFER"
+                    style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95, textDecoration: "none", color: "inherit" }}
+                    title="Go to Job Tracker (Offer)"
+                  >
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#dcfce7", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/offers.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -668,8 +692,12 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Offers</div>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95 }}>
+                  </Link>
+                  <Link
+                    href="/tracker"
+                    style={{ border: "1px solid #e2e8f0", borderRadius: 12, padding: 20, minHeight: 95, textDecoration: "none", color: "inherit" }}
+                    title="Go to Job Tracker"
+                  >
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 12, background: "#ffedd5", display: "grid", placeItems: "center", flexShrink: 0 }}>
                         <img src="/dashboard-icons/response-rate.svg" alt="" width={22} height={22} style={{ width: 22, height: 22, display: "block" }} />
@@ -679,7 +707,7 @@ export default function DashboardPage() {
                         <div style={{ color: "#64748b", fontSize: 12, fontWeight: 900, lineHeight: 1.2 }}>Response Rate</div>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 </div>
                 <div
                   style={{
@@ -758,8 +786,8 @@ export default function DashboardPage() {
           </div>
 
           {/* Right column */}
-          <div style={{ display: "grid", gap: 16 }}>
-          <div style={{ background: "#f1f5ff", borderRadius: 14, border: "1px solid #dbeafe", padding: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, flex: 1 }}>
+          <div style={{ background: "#f1f5ff", borderRadius: 14, border: "1px solid #dbeafe", padding: 16, flex: 1, display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ fontWeight: 900, fontSize: 18 }}>Daily Job Matches</div>
               <div style={{ background: "#dbeafe", color: "#1d4ed8", padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 800 }}>
@@ -773,43 +801,55 @@ export default function DashboardPage() {
             )}
 
             <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-              {matches.map((j) => (
-                <div key={j.jobId} style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 12 }}>
-                  <div style={{ fontWeight: 900 }}>{j.title}</div>
-                  <div style={{ color: "#64748b", fontSize: 13 }}>{j.company}</div>
-                  <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>{j.location || "—"}</div>
-                  <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    {(j.tags || []).slice(0, 3).map((t) => (
-                      <span key={t} style={{ fontSize: 12, background: "#f1f5f9", padding: "2px 8px", borderRadius: 999 }}>
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: 999, background: "#dcfce7", display: "grid", placeItems: "center", color: "#166534", fontWeight: 900 }}>
-                        {Math.max(0, Math.min(99, j.matchScore))}
+              {matches.map((j) => {
+                // Use match.matchScore (same as jobDetail) instead of matchScore
+                const matchScore = typeof j.match?.matchScore === "number" ? j.match.matchScore : null;
+                const tags = (j.jobKeywords?.skills || []).slice(0, 3);
+                return (
+                  <div key={j.id} style={{ background: "#fff", borderRadius: 14, border: "1px solid #e2e8f0", padding: 12 }}>
+                    <div style={{ fontWeight: 900 }}>{j.title}</div>
+                    <div style={{ color: "#64748b", fontSize: 13 }}>{j.company}</div>
+                    <div style={{ color: "#64748b", fontSize: 12, marginTop: 2 }}>{j.location || "—"}</div>
+                    <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+                      {tags.map((t) => (
+                        <span key={t} style={{ fontSize: 12, background: "#f1f5f9", padding: "2px 8px", borderRadius: 999 }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: 999, background: "#dcfce7", display: "grid", placeItems: "center", color: "#166534", fontWeight: 900 }}>
+                          {matchScore != null ? matchScore : "—"}
+                        </div>
+                        <div style={{ color: "#64748b", fontSize: 12 }}>match</div>
                       </div>
-                      <div style={{ color: "#64748b", fontSize: 12 }}>match</div>
-                    </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <Link href={`/jobs/${j.jobId}`} style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#fff", fontWeight: 800 }}>
-                        View
-                      </Link>
-                      <button
-                        onClick={() => {
-                          if (j.externalUrl) window.open(j.externalUrl, "_blank", "noopener,noreferrer");
-                          applyMut.mutate(j);
-                        }}
-                        disabled={applyMut.isPending}
-                        style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #0f172a", background: "#0f172a", color: "#fff", fontWeight: 800 }}
-                      >
-                        Apply
-                      </button>
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <Link href={`/jobs/${j.id}`} style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #cbd5e1", background: "#fff", fontWeight: 800 }}>
+                          View
+                        </Link>
+                        <button
+                          onClick={() => {
+                            if (j.applyUrl) window.open(j.applyUrl, "_blank", "noopener,noreferrer");
+                            applyMut.mutate({
+                              id: j.id,
+                              title: j.title,
+                              company: j.company,
+                              location: j.location || null,
+                              applyUrl: j.applyUrl || null,
+                              externalUrl: null
+                            });
+                          }}
+                          disabled={applyMut.isPending}
+                          style={{ padding: "8px 10px", borderRadius: 999, border: "1px solid #0f172a", background: "#0f172a", color: "#fff", fontWeight: 800 }}
+                        >
+                          Apply
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {applyMut.error && (
